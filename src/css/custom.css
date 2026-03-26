@@ -410,7 +410,8 @@ pre code { font-size: 0.88rem; line-height: 1.6; }
 
 /* ── TABLES ── */
 table {
-  width: 100%;
+  width: auto;
+  min-width: unset;
   border-collapse: collapse;
   border-radius: 10px;
   overflow: hidden;
