@@ -48,9 +48,9 @@
   --docusaurus-highlighted-code-line-bg: rgba(167, 139, 250, 0.10);
 
   --ifm-background-color: #0A0A0A;
-  --ifm-navbar-background-color: #0D0911;
-  --ifm-footer-background-color: #050004;
-  --ifm-background-surface-color: #18181B;
+  --ifm-navbar-background-color: #0A0A0A;
+  --ifm-footer-background-color: #0A0A0A;
+  --ifm-background-surface-color: #0A0A0A;
 
   --vt-bg-doc: #0A0A0A;
   --vt-surface: #18181B;
@@ -194,7 +194,7 @@ body:has(.navbar-sidebar--show) { overflow: hidden !important; }
 }
 
 [data-theme='dark'] .theme-doc-sidebar-container {
-  background: linear-gradient(180deg, #0A0914 0%, #0C0A18 60%, #0D0C1C 100%);
+  background: #0A0A0A;
   border-right: 1px solid rgba(124, 58, 237, 0.1) !important;
 }
 
@@ -409,34 +409,76 @@ pre code { font-size: 0.88rem; line-height: 1.6; }
 .alert--secondary { border-left-color: #5B21B6; background: rgba(91, 33, 182, 0.07); }
 
 /* ── TABLES ── */
-table {
-  width: auto;
-  min-width: unset;
-  border-collapse: collapse;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid rgba(124, 58, 237, 0.15);
-  font-size: 0.9rem;
+.markdown table {
+  display: table;
+  width: 100%;
 }
 
-thead tr { background: rgba(124, 58, 237, 0.1); border-bottom: 1px solid rgba(124, 58, 237, 0.2); }
+table {
+  width: 100% !important;
+  min-width: unset;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid rgba(124, 58, 237, 0.25);
+  font-size: 0.9rem;
+  box-shadow: 0 2px 12px rgba(124, 58, 237, 0.08);
+}
+
+/* Header */
+thead tr {
+  background: linear-gradient(90deg, rgba(91, 33, 182, 0.18) 0%, rgba(124, 58, 237, 0.10) 100%);
+  border-bottom: 2px solid rgba(124, 58, 237, 0.30);
+}
 
 th {
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   font-size: 0.78rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
   color: #5B21B6;
-  padding: 0.75rem 1rem;
-  background: rgba(124, 58, 237, 0.1);
+  padding: 0.85rem 1.1rem;
 }
 
-[data-theme='dark'] th { color: #C4B5FD; }
+/* Alternating rows — light */
+tbody tr:nth-child(even) { background: rgba(124, 58, 237, 0.04); }
+tbody tr:nth-child(odd)  { background: transparent; }
+tbody tr:hover           { background: rgba(124, 58, 237, 0.09); transition: background 0.15s; }
 
-td { padding: 0.65rem 1rem; border-bottom: 1px solid rgba(124, 58, 237, 0.08); vertical-align: top; }
+td {
+  padding: 0.7rem 1.1rem;
+  border-bottom: 1px solid rgba(124, 58, 237, 0.10);
+  border-right: 1px solid rgba(124, 58, 237, 0.07);
+  vertical-align: top;
+}
+td:last-child { border-right: none; }
+th:not(:last-child) { border-right: 1px solid rgba(124, 58, 237, 0.15); }
 tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover { background: rgba(124, 58, 237, 0.04); }
+
+/* ── TABLES — dark mode ── */
+[data-theme='dark'] table {
+  border-color: rgba(167, 139, 250, 0.22);
+  box-shadow: 0 2px 16px rgba(124, 58, 237, 0.18);
+}
+
+[data-theme='dark'] thead tr {
+  background: linear-gradient(90deg, rgba(109, 40, 217, 0.35) 0%, rgba(124, 58, 237, 0.20) 100%);
+  border-bottom-color: rgba(167, 139, 250, 0.35);
+}
+
+[data-theme='dark'] th {
+  color: #C4B5FD;
+}
+
+[data-theme='dark'] tbody tr:nth-child(even) { background: rgba(124, 58, 237, 0.08); }
+[data-theme='dark'] tbody tr:nth-child(odd)  { background: transparent; }
+[data-theme='dark'] tbody tr:hover           { background: rgba(167, 139, 250, 0.13); }
+
+[data-theme='dark'] td {
+  border-bottom-color: rgba(167, 139, 250, 0.10);
+  border-right-color:  rgba(167, 139, 250, 0.08);
+}
 
 /* ── MERMAID ── */
 .docusaurus-mermaid-container {
@@ -645,4 +687,17 @@ tbody tr:hover { background: rgba(124, 58, 237, 0.04); }
     display: flex;
     align-items: center;
   }
+}
+
+/* ── DOC PAGE — uniform background ── */
+[data-theme='dark'] html,
+[data-theme='dark'] body,
+[data-theme='dark'] .main-wrapper,
+[data-theme='dark'] .docPage,
+[data-theme='dark'] .docMainContainer,
+[data-theme='dark'] .docItemContainer,
+[data-theme='dark'] .col.docItemCol,
+[data-theme='dark'] .theme-doc-markdown,
+[data-theme='dark'] article {
+  background-color: #0A0A0A !important;
 }
