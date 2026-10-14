@@ -11,6 +11,18 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic V
 
 ---
 
+## [1.1.0]
+
+### Added
+- `Humanize()` relative-time formatting (es/en) via `HumanizeEngine`, built on `Vali-Time`'s `HumanizeCulture`.
+- Stateless `DateTime.Humanize(...)` extension method (`Vali_Age.Extensions.DateTimeHumanizeExtensions`) delegating to the same internal engine — no DI required.
+- `net10.0` target framework.
+
+### Changed
+- Temporarily depends on `Vali-Time`'s source via `ProjectReference` instead of a `PackageReference`, because `HumanizeCulture` doesn't exist in the published `Vali-Time` 1.0.1 package yet — switches to `PackageReference Version="1.1.0"` once `Vali-Time` republishes.
+
+---
+
 ## [1.0.0] — 2025-07-01
 
 ### Added
