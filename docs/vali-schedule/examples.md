@@ -17,13 +17,11 @@ Build a simple daily schedule starting from a fixed date and print the next 5 oc
 ```csharp
 using System;
 using Vali_Schedule.Core;
-using Vali_Schedule.Enums;
+using Vali_Time.Enums;
 
-var schedule = new ValiSchedule();
-
-var sched = schedule
-    .Every(1, RecurrenceType.Daily)
-    .At(9, 0)
+var sched = new ValiSchedule()
+    .Every(1, TimeUnit.Days)
+    .At(new TimeOnly(9, 0))
     .StartingFrom(new DateTime(2025, 6, 15))
     .Build();
 
@@ -34,7 +32,7 @@ Console.WriteLine("Daily standup — next 5 occurrences");
 Console.WriteLine("------------------------------------");
 
 int index = 1;
-foreach (var occ in sched.Occurrences(5, from))
+foreach (var occ in sched.Occurrences(from, 5))
 {
     Console.WriteLine($"  {index++}. {occ:ddd, MMM dd yyyy} at {occ:HH:mm}");
 }
@@ -61,14 +59,12 @@ Use `On(DayOfWeek...)` to restrict a weekly schedule to specific days of the wee
 ```csharp
 using System;
 using Vali_Schedule.Core;
-using Vali_Schedule.Enums;
+using Vali_Time.Enums;
 
-var schedule = new ValiSchedule();
-
-var sched = schedule
-    .Every(1, RecurrenceType.Weekly)
+var sched = new ValiSchedule()
+    .Every(1, TimeUnit.Weeks)
     .On(DayOfWeek.Monday, DayOfWeek.Wednesday)
-    .At(10, 30)
+    .At(new TimeOnly(10, 30))
     .StartingFrom(new DateTime(2025, 6, 16)) // Monday
     .Build();
 
@@ -78,7 +74,7 @@ Console.WriteLine("Bi-weekly sync — Mondays & Wednesdays (next 6 occurrences)"
 Console.WriteLine("-------------------------------------------------------------");
 
 int index = 1;
-foreach (var occ in sched.Occurrences(6, from))
+foreach (var occ in sched.Occurrences(from, 6))
 {
     Console.WriteLine($"  {index++}. {occ:dddd, MMMM dd yyyy} at {occ:HH:mm}");
 }
@@ -117,14 +113,12 @@ Use `OnDayOfMonth` to pin a monthly recurrence to a specific calendar day.
 ```csharp
 using System;
 using Vali_Schedule.Core;
-using Vali_Schedule.Enums;
+using Vali_Time.Enums;
 
-var schedule = new ValiSchedule();
-
-var sched = schedule
-    .Every(1, RecurrenceType.Monthly)
+var sched = new ValiSchedule()
+    .Every(1, TimeUnit.Months)
     .OnDayOfMonth(15)
-    .At(8, 0)
+    .At(new TimeOnly(8, 0))
     .StartingFrom(new DateTime(2025, 1, 15))
     .Build();
 
@@ -134,7 +128,7 @@ Console.WriteLine("Monthly invoice run — 15th of each month (next 6 occurrence
 Console.WriteLine("----------------------------------------------------------------");
 
 int index = 1;
-foreach (var occ in sched.Occurrences(6, from))
+foreach (var occ in sched.Occurrences(from, 6))
 {
     Console.WriteLine($"  {index++}. {occ:MMMM dd, yyyy} at {occ:HH:mm}");
 }
@@ -173,15 +167,13 @@ Console.WriteLine($"Occurs on Aug 16 : {onThe16th}");
 ```csharp
 using System;
 using Vali_Schedule.Core;
-using Vali_Schedule.Enums;
-
-var schedule = new ValiSchedule();
+using Vali_Time.Enums;
 
 // 8-week training program: every Monday and Thursday, limited to 16 sessions
-var sched = schedule
-    .Every(1, RecurrenceType.Weekly)
+var sched = new ValiSchedule()
+    .Every(1, TimeUnit.Weeks)
     .On(DayOfWeek.Monday, DayOfWeek.Thursday)
-    .At(7, 0)
+    .At(new TimeOnly(7, 0))
     .StartingFrom(new DateTime(2025, 6, 16)) // Monday
     .EndsAfter(16)
     .Build();
@@ -189,7 +181,7 @@ var sched = schedule
 var from = new DateTime(2025, 6, 16);
 
 // Fetch all sessions within the program
-var allSessions = sched.Occurrences(20, from); // request more than 16
+var allSessions = sched.Occurrences(from, 20); // request more than 16
 
 Console.WriteLine("8-week training program — all sessions");
 Console.WriteLine("---------------------------------------");
@@ -235,4 +227,79 @@ Console.WriteLine($"Next occurrence after program ends : {after?.ToString("MMM d
 
 :::tip Try it live
 [▶ Open in dotnetfiddle](https://dotnetfiddle.net) — Add the **Vali-Schedule** NuGet package in the fiddle settings.
+:::
+
+---
+
+## SkipWeekends + SkipHolidays — Resolving occurrences with HolidaySkipStrategy
+
+`SkipWeekends()` and `SkipHolidays(provider, strategy)` combine against the union of excluded dates. Here a daily schedule hits a holiday that itself falls on a weekend — `Santa Rosa de Lima` (Aug 30, 2025) is a Saturday, so the occurrence shifts all the way to the next Monday.
+
+```csharp
+using System;
+using Vali_Schedule.Core;
+using Vali_Time.Enums;
+using Vali_Holiday.Providers.LatinAmerica;
+
+var sched = new ValiSchedule()
+    .Every(1, TimeUnit.Days)
+    .At(new TimeOnly(9, 0))
+    .StartingFrom(new DateTime(2025, 8, 28))
+    .SkipWeekends()
+    .SkipHolidays(new PeruHolidayProvider()) // defaults to HolidaySkipStrategy.NextWorkday
+    .Build();
+
+Console.WriteLine("Daily reminder around Santa Rosa de Lima (Aug 30, 2025 — a Saturday)");
+Console.WriteLine("-----------------------------------------------------------------------");
+
+foreach (var occ in sched.Occurrences(new DateTime(2025, 8, 28), 4))
+    Console.WriteLine($"  {occ:dddd, MMM dd yyyy}");
+// Output:
+// Daily reminder around Santa Rosa de Lima (Aug 30, 2025 — a Saturday)
+// -----------------------------------------------------------------------
+//   Thursday, Aug 28 2025
+//   Friday, Aug 29 2025
+//   Monday, Sep 01 2025   <- Aug 30 (Sat, holiday) and Aug 31 (Sun) both skipped
+//   Tuesday, Sep 02 2025
+```
+
+:::tip Try it live
+[▶ Open in dotnetfiddle](https://dotnetfiddle.net) — Add the **Vali-Schedule** and **Vali-Holiday** NuGet packages in the fiddle settings.
+:::
+
+---
+
+## OccurrencePeriods — Pairing occurrences into date ranges
+
+`OccurrencePeriods` pairs each occurrence with the schedule's next real occurrence, producing closed `DateRange` periods useful for billing cycles, reporting windows, or "active until next occurrence" logic. The last period closes with the real next occurrence even if it falls beyond the query's `to` boundary.
+
+```csharp
+using System;
+using Vali_Schedule.Core;
+using Vali_Time.Enums;
+
+var sched = new ValiSchedule()
+    .Every(1, TimeUnit.Weeks)
+    .On(DayOfWeek.Monday)
+    .StartingFrom(new DateTime(2025, 1, 6)) // Monday
+    .Build();
+
+var periods = sched.OccurrencePeriods(new DateTime(2025, 1, 1), new DateTime(2025, 1, 31));
+
+Console.WriteLine("Weekly billing periods — January 2025");
+Console.WriteLine("----------------------------------------");
+
+foreach (var period in periods)
+    Console.WriteLine($"  {period.Start:yyyy-MM-dd} → {period.End:yyyy-MM-dd HH:mm:ss.fffffff}");
+// Output:
+// Weekly billing periods — January 2025
+// ----------------------------------------
+//   2025-01-06 → 2025-01-12 23:59:59.9999999
+//   2025-01-13 → 2025-01-19 23:59:59.9999999
+//   2025-01-20 → 2025-01-26 23:59:59.9999999
+//   2025-01-27 → 2025-02-02 23:59:59.9999999   <- closed by Feb 3 (the real next occurrence), beyond `to`
+```
+
+:::tip Try it live
+[▶ Open in dotnetfiddle](https://dotnetfiddle.net) — Add the **Vali-Schedule** and **Vali-Range** NuGet packages in the fiddle settings.
 :::
