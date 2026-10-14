@@ -11,6 +11,14 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic V
 
 ---
 
+## [1.0.1]
+
+### Changed
+- Added `net10.0` target. No public API change.
+- Internal: removed duplicate tick-conversion constants in favor of `TimeSpan.TicksPerX` — internal only, no public API change.
+
+---
+
 ## [1.0.0] — 2025-07-01
 
 ### Added

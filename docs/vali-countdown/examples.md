@@ -17,7 +17,7 @@ Use `IsExpired` to detect overdue deadlines and `TimeUntil` to get the remaining
 ```csharp
 using System;
 using Vali_CountDown.Core;
-using Vali_CountDown.Enums;
+using Vali_Time.Enums;
 
 var countdown = new ValiCountdown();
 
@@ -81,7 +81,7 @@ Console.WriteLine("---------------");
 foreach (var point in checkpoints)
 {
     decimal fraction = countdown.Progress(start, deadline, point);
-    decimal percent  = countdown.ProgressPercent(start, deadline, point);
+    decimal percent  = fraction * 100m; // ProgressPercent has no reference overload — same formula it uses internally
     int     bar      = (int)(percent / 5);
 
     Console.WriteLine($"{point:MMM dd} | [{"#".PadRight(bar).PadRight(20, '-')}] {percent:F1}%");
@@ -107,10 +107,13 @@ foreach (var point in checkpoints)
 ```csharp
 using System;
 using Vali_CountDown.Core;
-
-var countdown = new ValiCountdown();
+using Vali_Time.Abstractions;
 
 var reference = new DateTime(2025, 6, 15, 10, 0, 0);
+
+// Format has no reference overload — it always reads from the injected clock.
+// Fix the clock to `reference` for a deterministic example.
+var countdown = new ValiCountdown(new FixedClock(reference));
 
 var deadlines = new (string Name, DateTime Deadline)[]
 {
@@ -124,8 +127,8 @@ Console.WriteLine("------------------");
 
 foreach (var (name, deadline) in deadlines)
 {
-    string compact     = countdown.Format(deadline, reference, includeSeconds: false);
-    string withSeconds = countdown.Format(deadline, reference, includeSeconds: true);
+    string compact     = countdown.Format(deadline, includeSeconds: false);
+    string withSeconds = countdown.Format(deadline, includeSeconds: true);
 
     Console.WriteLine($"{name,-14} | {compact,-15} | {withSeconds}");
 }
@@ -135,6 +138,12 @@ foreach (var (name, deadline) in deadlines)
 // Code freeze    | 3d 4h 30m      | 3d 4h 30m 0s
 // Beta release   | Expired        | Expired
 // Launch day     | 15d 14h        | 15d 14h 0m 0s
+
+// Minimal IClock test double used above:
+record FixedClock(DateTime Now) : IClock
+{
+    public DateTime Today => Now.Date;
+}
 ```
 
 :::tip Try it live
@@ -150,11 +159,13 @@ foreach (var (name, deadline) in deadlines)
 ```csharp
 using System;
 using Vali_CountDown.Core;
-
-var countdown = new ValiCountdown();
+using Vali_Time.Abstractions;
 
 // Reference point: June 15, 2025
 var reference = new DateTime(2025, 6, 15, 0, 0, 0);
+
+// IsStarted has no reference overload — fix the clock to `reference` instead (see FixedClock above).
+var countdown = new ValiCountdown(new FixedClock(reference));
 
 var phases = new (string Phase, DateTime Start, DateTime Deadline)[]
 {
@@ -169,8 +180,8 @@ Console.WriteLine(new string('-', 50));
 
 foreach (var (phase, start, deadline) in phases)
 {
-    bool started = countdown.IsStarted(start, reference);
-    bool expired = countdown.IsExpired(deadline, reference);
+    bool started = countdown.IsStarted(start);
+    bool expired = countdown.IsExpired(deadline);
 
     string status = !started          ? "Upcoming"
                   : started && expired ? "Completed"

@@ -2,11 +2,13 @@
 id: overview
 title: Vali-CountDown Overview
 sidebar_label: Overview
+description: Vali-CountDown provides countdown and elapsed time calculations for .NET — measure time remaining to a target date or time elapsed since an event.
+keywords: [Vali-CountDown, countdown, elapsed time, .NET, NuGet, C#, time remaining]
 ---
 
 # Vali-CountDown
 
-`IValiCountDown` provides deadline tracking, countdown calculation, elapsed time measurement, and progress reporting. All methods accept an optional reference time parameter, allowing you to test against any point in time rather than always using `DateTime.Now`.
+`IValiCountdown` provides deadline tracking, countdown calculation, elapsed time measurement, and progress reporting. All methods accept an optional reference time parameter, allowing you to test against any point in time rather than always using `DateTime.Now`.
 
 ## Installation
 
@@ -14,15 +16,17 @@ sidebar_label: Overview
 dotnet add package Vali-CountDown
 ```
 
+Compiled targets: `net8.0`, `net9.0`, `net10.0`. Compatible with **.NET 6** and **.NET 7** via NuGet backward compatibility — no separate build needed.
+
 ## Registration
 
 ```csharp
-builder.Services.AddValiCountDown();
+builder.Services.AddValiCountdown();
 // or via the meta-package:
 builder.Services.AddValiTempo();
 ```
 
-## IValiCountDown API
+## IValiCountdown API
 
 ### IsExpired
 
@@ -140,7 +144,7 @@ bool started = countdown.IsStarted(projectStart);
 ## Complete Example
 
 ```csharp
-public class TaskDashboard(IValiCountDown countdown)
+public class TaskDashboard(IValiCountdown countdown)
 {
     public void DisplayTaskStatus(string taskName, DateTime created, DateTime deadline)
     {
