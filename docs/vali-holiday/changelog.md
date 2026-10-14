@@ -11,6 +11,22 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic V
 
 ---
 
+## [1.1.0]
+
+### Added
+- `IValiHoliday.IsHoliday(DateTime, params string[])` (ANY semantics) and `IsHolidayInAll(DateTime, params string[])` (ALL semantics) — multi-country holiday checks in a single call.
+- `HolidayInfo.TryToDateTime(int year, out DateTime result)` — safe `(Month, Day, year)` conversion that returns `false` instead of throwing for Feb 29 in a non-leap year.
+- `ObservedRule` enum and `IHolidayProvider.GetObservedDate(HolidayInfo, int)` / `IValiHoliday.GetObservedHoliday(DateTime, string)` — official weekend-shift ("observed"/"substitute" day) resolution, implemented for USA (Saturday → previous Friday, Sunday → following Monday) and United Kingdom (weekend → next available weekday, with coordinated Christmas Day/Boxing Day collision handling). No other provider declares a rule in this release.
+
+### Changed
+- `IsHoliday(DateTime, params string[])` and `IsHolidayInAll(DateTime, params string[])` now throw `ArgumentNullException` instead of `NullReferenceException` when called with a `null` array.
+- `HolidayInfo` is now a `sealed record` (previously a `sealed class`) — adds structural equality; `ToString()` format is unchanged. `Names` is still compared by reference, since records do not deep-compare collections.
+- Moved `UsaHolidayProvider.cs`/`CanadaHolidayProvider.cs` to `Providers/NorthAmerica/` and `AustraliaHolidayProvider.cs` to `Providers/Oceania/`, matching their already-declared namespaces (no namespace or behavior change).
+- Added `net10.0` target.
+
+### Fixed
+- `BaseHolidayProvider.GetHolidaysInRange` and `ValiHoliday.GetNextHolidayWithYear`/`GetPreviousHolidayWithYear` now share a single Feb-29/non-leap-year guard (via `HolidayInfo.TryToDateTime`) instead of three independently-written checks.
+
 ## [1.0.0] — 2025-07-01
 
 ### Added

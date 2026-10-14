@@ -16,68 +16,84 @@ public interface IHolidayProvider
     /// <summary>ISO 3166-1 alpha-2 country code (e.g. "PE", "US", "ES").</summary>
     string CountryCode { get; }
 
-    /// <summary>Return all public holidays for the given year.</summary>
+    /// <summary>English name of the country (e.g. "Peru", "Chile", "Argentina").</summary>
+    string CountryName { get; }
+
+    /// <summary>BCP 47 tag for the primary language used in holiday names.</summary>
+    string PrimaryLanguage { get; }
+
+    /// <summary>Returns all public holidays for the given year.</summary>
     IEnumerable<HolidayInfo> GetHolidays(int year);
+
+    bool IsHoliday(DateTime date);
+    bool IsHoliday(DateOnly date);
+
+    HolidayInfo? GetHoliday(DateTime date);
+    IEnumerable<HolidayInfo> GetHolidaysInRange(DateTime from, DateTime to);
+
+    string GetName(HolidayInfo holiday, string languageCode);
+
+    /// <summary>Resolves the official "observed"/"substitute" date for a holiday, if it declares a weekend-shift rule.</summary>
+    DateTime? GetObservedDate(HolidayInfo holiday, int year);
 }
 ```
 
-Implement this interface to add custom countries or company-specific holiday calendars.
+Implement this interface — or extend `BaseHolidayProvider`, which already implements the caching, range-filtering, and observed-date resolution logic — to add custom countries or company-specific holiday calendars.
 
 ## HolidayProviderFactory
 
-`HolidayProviderFactory` is a static class that provides pre-built collections of providers.
+`HolidayProviderFactory` is a static class that provides pre-built collections of providers. Each `CreateX` method returns a ready-to-use `ValiHoliday` instance; each `GetXProviders` method returns the raw `IEnumerable<IHolidayProvider>` if you want to register them yourself or combine groups.
 
-### CreateAll
+### CreateAll / GetAllProviders
 
-Returns providers for all 35 supported countries:
+Returns a `ValiHoliday` pre-loaded with all 38 built-in providers (Latin America + Europe + Other):
 
 ```csharp
-foreach (var provider in HolidayProviderFactory.CreateAll())
+var holiday = HolidayProviderFactory.CreateAll();
+// or, to register into an existing instance:
+foreach (var provider in HolidayProviderFactory.GetAllProviders())
     holiday.Register(provider);
 ```
 
-**Signature:** `static IEnumerable<IHolidayProvider> CreateAll()`
+**Signatures:** `static ValiHoliday CreateAll()` · `static IEnumerable<IHolidayProvider> GetAllProviders()`
 
-### CreateLatinAmerica
+### CreateLatinAmerica / GetLatinAmericaProviders
 
-Returns providers for 15 Latin American countries:
-
-```csharp
-foreach (var provider in HolidayProviderFactory.CreateLatinAmerica())
-    holiday.Register(provider);
-```
-
-**Countries:** Argentina (AR), Bolivia (BO), Brazil (BR), Chile (CL), Colombia (CO), Costa Rica (CR), Cuba (CU), Dominican Republic (DO), Ecuador (EC), El Salvador (SV), Guatemala (GT), Honduras (HN), Mexico (MX), Panama (PA), Paraguay (PY), Peru (PE), Uruguay (UY), Venezuela (VE)
-
-**Signature:** `static IEnumerable<IHolidayProvider> CreateLatinAmerica()`
-
-### CreateEurope
-
-Returns providers for 17 European countries plus US and Canada:
+Returns providers for 19 Latin American countries:
 
 ```csharp
-foreach (var provider in HolidayProviderFactory.CreateEurope())
-    holiday.Register(provider);
+var holiday = HolidayProviderFactory.CreateLatinAmerica();
 ```
 
-**Countries:** Austria (AT), Belgium (BE), Switzerland (CH), Czech Republic (CZ), Germany (DE), Denmark (DK), Spain (ES), Finland (FI), France (FR), United Kingdom (GB), Greece (GR), Hungary (HU), Ireland (IE), Italy (IT), Netherlands (NL), Norway (NO), Poland (PL), Portugal (PT), Romania (RO), Sweden (SE), Canada (CA), United States (US)
+**Countries:** Argentina (AR), Bolivia (BO), Brazil (BR), Chile (CL), Colombia (CO), Costa Rica (CR), Cuba (CU), Dominican Republic (DO), Ecuador (EC), El Salvador (SV), Guatemala (GT), Honduras (HN), Mexico (MX), Nicaragua (NI), Panama (PA), Paraguay (PY), Peru (PE), Uruguay (UY), Venezuela (VE)
 
-**Signature:** `static IEnumerable<IHolidayProvider> CreateEurope()`
+**Signatures:** `static ValiHoliday CreateLatinAmerica()` · `static IEnumerable<IHolidayProvider> GetLatinAmericaProviders()`
 
-### CreateOther
+### CreateEurope / GetEuropeProviders
 
-Returns providers for remaining supported countries:
+Returns providers for 16 European countries:
 
 ```csharp
-foreach (var provider in HolidayProviderFactory.CreateOther())
-    holiday.Register(provider);
+var holiday = HolidayProviderFactory.CreateEurope();
 ```
 
-**Countries:** Australia (AU), Japan (JP), South Korea (KR), New Zealand (NZ), Philippines (PH), Russia (RU), South Africa (ZA)
+**Countries:** Austria (AT), Belgium (BE), Switzerland (CH), Germany (DE), Denmark (DK), Spain (ES), Finland (FI), France (FR), United Kingdom (GB), Ireland (IE), Italy (IT), Netherlands (NL), Norway (NO), Poland (PL), Portugal (PT), Sweden (SE)
 
-**Signature:** `static IEnumerable<IHolidayProvider> CreateOther()`
+**Signatures:** `static ValiHoliday CreateEurope()` · `static IEnumerable<IHolidayProvider> GetEuropeProviders()`
 
-## All 35 Supported Countries
+### CreateOther / GetOtherProviders
+
+Returns providers for the remaining countries outside Latin America and Europe: USA, Canada, and Australia.
+
+```csharp
+var holiday = HolidayProviderFactory.CreateOther();
+```
+
+**Countries:** United States (US), Canada (CA), Australia (AU)
+
+**Signatures:** `static ValiHoliday CreateOther()` · `static IEnumerable<IHolidayProvider> GetOtherProviders()`
+
+## All 38 Supported Countries
 
 | Code | Country | Region |
 |---|---|---|
@@ -87,13 +103,12 @@ foreach (var provider in HolidayProviderFactory.CreateOther())
 | BE | Belgium | Europe |
 | BO | Bolivia | Latin America |
 | BR | Brazil | Latin America |
-| CA | Canada | North America |
+| CA | Canada | Other |
 | CH | Switzerland | Europe |
 | CL | Chile | Latin America |
 | CO | Colombia | Latin America |
 | CR | Costa Rica | Latin America |
 | CU | Cuba | Latin America |
-| CZ | Czech Republic | Europe |
 | DE | Germany | Europe |
 | DK | Denmark | Europe |
 | DO | Dominican Republic | Latin America |
@@ -102,36 +117,30 @@ foreach (var provider in HolidayProviderFactory.CreateOther())
 | FI | Finland | Europe |
 | FR | France | Europe |
 | GB | United Kingdom | Europe |
-| GR | Greece | Europe |
 | GT | Guatemala | Latin America |
 | HN | Honduras | Latin America |
-| HU | Hungary | Europe |
 | IE | Ireland | Europe |
 | IT | Italy | Europe |
-| JP | Japan | Other |
-| KR | South Korea | Other |
 | MX | Mexico | Latin America |
+| NI | Nicaragua | Latin America |
 | NL | Netherlands | Europe |
 | NO | Norway | Europe |
-| NZ | New Zealand | Other |
 | PA | Panama | Latin America |
 | PE | Peru | Latin America |
-| PH | Philippines | Other |
 | PL | Poland | Europe |
 | PT | Portugal | Europe |
 | PY | Paraguay | Latin America |
-| RO | Romania | Europe |
-| RU | Russia | Other |
 | SE | Sweden | Europe |
 | SV | El Salvador | Latin America |
-| US | United States | North America |
+| US | United States | Other |
 | UY | Uruguay | Latin America |
 | VE | Venezuela | Latin America |
-| ZA | South Africa | Other |
+
+> No other countries are currently supported — in particular, there are **no** built-in providers for Czech Republic, Greece, Hungary, Romania, Japan, South Korea, New Zealand, Philippines, Russia, or South Africa, despite earlier versions of this page listing them.
 
 ## EasterCalculator
 
-`EasterCalculator` is a static helper used by all providers that have Easter-dependent holidays. It computes Easter Sunday using the Anonymous Gregorian algorithm:
+`EasterCalculator` is a static helper used by all providers that have Easter-dependent holidays. It computes Easter Sunday using the Gaussian algorithm:
 
 ```csharp
 DateTime easter = EasterCalculator.GetEaster(2025);
@@ -144,15 +153,13 @@ DateTime easterMonday = easter.AddDays(1);
 
 **Signature:** `static DateTime GetEaster(int year)`
 
-The algorithm correctly handles all years from 1583 onwards (the start of the Gregorian calendar). Passing a year before 1583 throws `ArgumentOutOfRangeException` (pre-Gregorian calendar). No external dependencies required.
-
 ### Countries using Easter-based holidays
 
 All Latin American providers, and most European providers, use `EasterCalculator` for movable holidays including:
 
 - **Carnival** (Fat Tuesday, 47 days before Easter)
 - **Palm Sunday** (7 days before Easter)
-- **Maundy Thursday** (3 days before Easter)
+- **Maundy/Holy Thursday** (3 days before Easter)
 - **Good Friday** (2 days before Easter)
 - **Holy Saturday** (1 day before Easter)
 - **Easter Sunday**
@@ -165,7 +172,7 @@ All Latin American providers, and most European providers, use `EasterCalculator
 
 ### Argentina (AR)
 
-Easter Sunday is typed as `HolidayType.Observance` in the Argentina provider. Observance holidays are excluded from `IsHoliday()` national checks, so `IsHoliday("AR", easterDate)` returns `false` for Easter Sunday.
+Easter Sunday is typed as `HolidayType.Observance` in the Argentina provider. Observance holidays are excluded from the `IsHoliday()` national fast-path check, so `IsHoliday(easterDate, "AR")` returns `false` for Easter Sunday.
 
 ### Chile (CL)
 
@@ -177,39 +184,53 @@ The Honduras provider includes:
 - **Sep 17 — Día del Maestro** (fixed civic holiday)
 - **Easter Sunday** (movable, Easter-based)
 
+### USA (US) / United Kingdom (GB)
+
+The only two providers that declare an `ObservedRule` on their holidays (weekend-shift resolution via `GetObservedDate`/`GetObservedHoliday`):
+
+- **USA** — `SaturdayToFriday_SundayToMonday`: Saturday → previous Friday, Sunday → following Monday.
+- **United Kingdom** — `NextAvailableWeekday`: weekend → next available weekday not already a substitute day, with coordinated Christmas Day/Boxing Day collision handling.
+
 ## Implementing a Custom Provider
 
+Extend `BaseHolidayProvider` and implement `GetFixedHolidays()` (and optionally `GetMovableHolidays(year)`):
+
 ```csharp
-public class CompanyHolidayProvider : IHolidayProvider
+public class CompanyHolidayProvider : BaseHolidayProvider
 {
-    public string CountryCode => "INTERNAL";
+    public override string CountryCode => "INTERNAL";
+    public override string CountryName => "Internal Company Calendar";
+    public override string PrimaryLanguage => "en";
 
-    public IEnumerable<HolidayInfo> GetHolidays(int year)
+    protected override IEnumerable<HolidayInfo> GetFixedHolidays()
     {
-        yield return new HolidayInfo
-        {
-            Name      = "Company Foundation Day",
-            LocalName = "Día de Fundación",
-            Date      = new DateTime(year, 6, 15),
-            Country   = CountryCode,
-            Type      = HolidayType.Optional,
-            IsFixed   = true,
-        };
+        yield return new HolidayInfo(
+            id: "company_foundation_day",
+            month: 6,
+            day: 15,
+            countryCode: CountryCode,
+            name: "Company Foundation Day",
+            names: Names(es: "Día de Fundación", en: "Company Foundation Day"),
+            type: HolidayType.Optional);
+    }
 
+    protected override IEnumerable<HolidayInfo> GetMovableHolidays(int year)
+    {
         // Dynamic holiday: first Monday in March
         var firstMonday = Enumerable
             .Range(1, 7)
             .Select(d => new DateTime(year, 3, d))
             .First(d => d.DayOfWeek == DayOfWeek.Monday);
 
-        yield return new HolidayInfo
-        {
-            Name    = "Team Day",
-            Date    = firstMonday,
-            Country = CountryCode,
-            Type    = HolidayType.Optional,
-            IsFixed = false,
-        };
+        yield return new HolidayInfo(
+            id: "company_team_day",
+            month: firstMonday.Month,
+            day: firstMonday.Day,
+            countryCode: CountryCode,
+            name: "Team Day",
+            names: Names(es: "Día del Equipo", en: "Team Day"),
+            type: HolidayType.Optional,
+            isMovable: true);
     }
 }
 
