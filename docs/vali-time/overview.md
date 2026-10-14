@@ -2,6 +2,8 @@
 id: overview
 title: Vali-Time Overview
 sidebar_label: Overview
+description: Vali-Time provides time unit conversions, formatting, parsing, and arithmetic for .NET. Convert between milliseconds, seconds, minutes, hours, days, weeks, months and years.
+keywords: [Vali-Time, time conversion, .NET, NuGet, TimeUnit, C#, time arithmetic]
 ---
 
 # Vali-Time
@@ -13,6 +15,8 @@ sidebar_label: Overview
 ```bash
 dotnet add package Vali-Time
 ```
+
+Compiled targets: `net8.0`, `net9.0`, `net10.0`. Compatible with **.NET 6** and **.NET 7** via NuGet backward compatibility — no separate build needed.
 
 ## Registration
 
@@ -66,102 +70,133 @@ Defines which day starts the week, used in week-of-year calculations:
 
 ### Convert
 
-Convert a value from one time unit to another:
+Convert a value from one time unit to another, with optional rounding:
 
 ```csharp
-decimal hours = time.Convert(90, TimeUnit.Minutes, TimeUnit.Hours);
-// → 1.5
+decimal seconds = time.Convert(2m, TimeUnit.Hours, TimeUnit.Seconds);
+// → 7200
 
-decimal ms = time.Convert(2.5m, TimeUnit.Seconds, TimeUnit.Milliseconds);
-// → 2500
+decimal hours = time.Convert(1.5m, TimeUnit.Days, TimeUnit.Hours, decimalPlaces: 2);
+// → 36.00
 ```
 
-**Signature:** `decimal Convert(decimal value, TimeUnit from, TimeUnit to)`
+**Signature:** `decimal Convert(decimal time, TimeUnit fromUnit, TimeUnit toUnit, int? decimalPlaces = null, MidpointRounding rounding = MidpointRounding.ToEven)`
+
+### TryConvert
+
+Safe conversion that returns `false` instead of throwing on invalid input:
+
+```csharp
+if (time.TryConvert(90m, TimeUnit.Minutes, TimeUnit.Hours, out decimal h))
+    Console.WriteLine(h); // → 1.5
+```
+
+**Signature:** `bool TryConvert(decimal time, TimeUnit fromUnit, TimeUnit toUnit, out decimal result, int? decimalPlaces = null)`
 
 ### SumTimes
 
-Sum multiple values (all in the same unit) and return the total in a target unit:
+Add multiple values expressed in different units in a single call, and get the result in any unit:
 
 ```csharp
-decimal totalHours = time.SumTimes(
-    new[] { 30m, 45m, 90m },
-    TimeUnit.Minutes,
-    TimeUnit.Hours
-);
-// → 2.75
+var values = new List<(decimal time, TimeUnit unit)>
+{
+    (1m,  TimeUnit.Hours),
+    (30m, TimeUnit.Minutes),
+    (45m, TimeUnit.Seconds)
+};
+
+decimal totalSeconds = time.SumTimes(TimeUnit.Seconds, values);
+// → 5445
 ```
 
-**Signature:** `decimal SumTimes(IEnumerable<decimal> values, TimeUnit inputUnit, TimeUnit outputUnit)`
+**Signature:** `decimal SumTimes(TimeUnit resultUnit, List<(decimal time, TimeUnit unit)> times, int? decimalPlaces = null, MidpointRounding rounding = MidpointRounding.ToEven)`
 
 ### SubtractTimes
 
-Subtract one time value from another:
+Subtract from the first value all subsequent values. The first element is the minuend:
 
 ```csharp
-decimal diff = time.SubtractTimes(120m, 45m, TimeUnit.Minutes, TimeUnit.Hours);
-// → 1.25
+var values = new List<(decimal time, TimeUnit unit)>
+{
+    (2m,   TimeUnit.Hours),
+    (30m,  TimeUnit.Minutes),
+    (600m, TimeUnit.Seconds)
+};
+
+decimal result = time.SubtractTimes(TimeUnit.Minutes, values);
+// → 80  (120 min - 30 min - 10 min)
+
+// Allow a negative result instead of throwing
+decimal negative = time.SubtractTimes(TimeUnit.Hours, values, allowNegative: true);
 ```
 
-**Signature:** `decimal SubtractTimes(decimal a, decimal b, TimeUnit inputUnit, TimeUnit outputUnit)`
+**Signature:** `decimal SubtractTimes(TimeUnit resultUnit, List<(decimal time, TimeUnit unit)> times, bool allowNegative = false, int? decimalPlaces = null, MidpointRounding rounding = MidpointRounding.ToEven)`
 
 ### FormatTime
 
-Format a decimal time value into a human-readable string with rounding:
+Format a decimal time value into a human-readable, unit-aware string. Supports `CultureInfo`:
 
 ```csharp
-string s1 = time.FormatTime(1.5m, TimeUnit.Hours, 0);
-// → "2 hours"
+string s1 = time.FormatTime(1.5m, TimeUnit.Hours);
+// → "1.50 h"
 
-string s2 = time.FormatTime(90m, TimeUnit.Minutes, 1);
-// → "1.5 hours"
+string s2 = time.FormatTime(90m, TimeUnit.Minutes);
+// → "90.00 min"
 
-string s3 = time.FormatTime(45m, TimeUnit.Seconds, 0);
-// → "45 seconds"
+// German culture (comma as decimal separator)
+var de = new System.Globalization.CultureInfo("de-DE");
+string s3 = time.FormatTime(1234.5m, TimeUnit.Seconds, 2, de);
+// → "1234,50 s"
 ```
 
-**Signature:** `string FormatTime(decimal value, TimeUnit unit, int decimalPlaces)`
+**Signature:** `string FormatTime(decimal time, TimeUnit unit, int decimalPlaces = 2, CultureInfo? culture = null)`
 
 ### GetBestUnit
 
 Given a duration in seconds, return the most human-readable unit along with the converted value:
 
 ```csharp
-var (value, unit) = time.GetBestUnit(3661);
-// value: 1.0169..., unit: TimeUnit.Hours
+var (value, unit) = time.GetBestUnit(7200m);
+Console.WriteLine(time.FormatTime(value, unit)); // → "2.00 h"
 
-var (value2, unit2) = time.GetBestUnit(90);
-// value2: 1.5, unit2: TimeUnit.Minutes
+var (value2, unit2) = time.GetBestUnit(0.5m);
+Console.WriteLine(time.FormatTime(value2, unit2)); // → "500.00 ms"
 ```
 
 **Signature:** `(decimal time, TimeUnit unit) GetBestUnit(decimal seconds)`
 
-### ParseTime
+### ParseTime / TryParseTime
 
-Parse a human-readable string into a decimal value and unit:
+Parse a human-readable duration string into total seconds (colon-separated or labelled tokens, e.g. `"1:30:00"`, `"2d 4h 30m 15s"`, `"500ms"`):
 
 ```csharp
-(decimal value, TimeUnit unit) = time.ParseTime("2.5 hours");
-// value = 2.5, unit = TimeUnit.Hours
+decimal s1 = time.ParseTime("1:30:00"); // → 5400
+decimal s2 = time.ParseTime("2d 4h 30m 15s"); // → 188415
 
-(decimal v2, TimeUnit u2) = time.ParseTime("90 minutes");
-// v2 = 90, u2 = TimeUnit.Minutes
+if (time.TryParseTime("bad input", out decimal parsed))
+    Console.WriteLine(parsed);
+else
+    Console.WriteLine("Could not parse"); // this branch runs
 ```
 
-**Signature:** `(decimal value, TimeUnit unit) ParseTime(string input)`
+**Signature:** `decimal ParseTime(string input)` / `bool TryParseTime(string input, out decimal seconds)`
+
+> Since **1.1.0**, the grammar behind `ParseTime`/`TryParseTime` is also exposed as a standalone, reusable utility — see [DurationStringParser](#durationstringparser) below.
 
 ### Breakdown
 
-Decompose a total value into a dictionary of component units:
+Decompose a total number of seconds into hours, minutes, seconds, and milliseconds:
 
 ```csharp
-var parts = time.Breakdown(3661m, TimeUnit.Seconds);
-// → { Hours: 1, Minutes: 1, Seconds: 1 }
+var parts = time.Breakdown(3665.678m);
 
-var parts2 = time.Breakdown(90m, TimeUnit.Minutes);
-// → { Hours: 1, Minutes: 30 }
+Console.WriteLine(parts[TimeUnit.Hours]);        // → 1
+Console.WriteLine(parts[TimeUnit.Minutes]);      // → 1
+Console.WriteLine(parts[TimeUnit.Seconds]);      // → 5
+Console.WriteLine(parts[TimeUnit.Milliseconds]); // → 678
 ```
 
-**Signature:** `Dictionary<TimeUnit, decimal> Breakdown(decimal value, TimeUnit sourceUnit)`
+**Signature:** `Dictionary<TimeUnit, decimal> Breakdown(decimal seconds)`
 
 ### ToTimeSpan
 
@@ -197,7 +232,7 @@ decimal clamped2 = time.Clamp(-5m, TimeUnit.Minutes, 0m, 120m);
 // → 0 (clamped to min)
 ```
 
-**Signature:** `decimal Clamp(decimal value, TimeUnit unit, decimal min, decimal max)`
+**Signature:** `decimal Clamp(decimal time, TimeUnit unit, decimal min, decimal max)`
 
 ### Compare
 
@@ -211,7 +246,7 @@ int result2 = time.Compare(90m, TimeUnit.Seconds, 2m, TimeUnit.Minutes);
 // → -1 (90s < 2min)
 ```
 
-**Signature:** `int Compare(decimal a, TimeUnit aUnit, decimal b, TimeUnit bUnit)`
+**Signature:** `int Compare(decimal time1, TimeUnit unit1, decimal time2, TimeUnit unit2)`
 
 ### MultiConvert
 
@@ -219,21 +254,57 @@ Convert a value from one unit to multiple target units at once:
 
 ```csharp
 var results = time.MultiConvert(3600m, TimeUnit.Seconds,
-    TimeUnit.Hours, TimeUnit.Minutes, TimeUnit.Days);
-// → { Hours: 1, Minutes: 60, Days: 0.0416... }
+    TimeUnit.Minutes, TimeUnit.Hours, TimeUnit.Days);
+// → { Minutes: 60, Hours: 1, Days: 0.0416... }
 ```
 
-**Signature:** `Dictionary<TimeUnit, decimal> MultiConvert(decimal value, TimeUnit from, params TimeUnit[] targets)`
+**Signature:** `Dictionary<TimeUnit, decimal> MultiConvert(decimal time, TimeUnit fromUnit, params TimeUnit[] toUnits)`
+
+### DurationStringParser
+
+New in **1.1.0**. `Vali_Time.Utils.DurationStringParser` is the standalone, stateless parser extracted from `ParseTime`'s grammar — colon-separated (`"hh:mm:ss"`, `"mm:ss"`) and labelled tokens (`"2d 4h 30m 15s"`, `"500ms"`, `"90 minutes"`), returning total seconds. `IValiTime.ParseTime`/`TryParseTime` call into it internally, and it's reused as-is by `Vali-Duration`'s `IParsable<ValiDuration>` so both packages agree on exactly one grammar — it is a static utility, not registered in DI.
+
+```csharp
+using Vali_Time.Utils;
+
+decimal seconds = DurationStringParser.Parse("1h 30m");
+// → 5400
+
+if (DurationStringParser.TryParse("not a duration", out decimal result))
+    Console.WriteLine(result);
+else
+    Console.WriteLine("Could not parse"); // this branch runs
+```
+
+**Signature:** `static decimal Parse(string input)` / `static bool TryParse(string? input, out decimal seconds)`
+
+### DateTimeExtensions
+
+`Vali_Time.Extensions.DateTimeExtensions` consolidates `StartOfWeek`, `IsWeekend`, and `IsWeekday` (plus `EndOfWeek`, `StartOf`/`EndOf`Month/Year/Quarter, `IsSameDay`/`IsSameMonth`/`IsSameYear`, `WeekOfYear`, `QuarterOfYear`) as `DateTime` extension methods — the single source of truth other Vali-Tempo packages now call into, instead of duplicating this logic.
+
+```csharp
+using Vali_Time.Extensions;
+
+var date = new DateTime(2025, 5, 20);
+
+bool weekend = date.IsWeekend();            // → false
+DateTime weekStart = date.StartOfWeek();    // → 2025-05-19 (Monday)
+DateTime quarterEnd = date.EndOfQuarter();  // → 2025-06-30 23:59:59.999
+```
+
+### HumanizeCulture
+
+New in **1.1.0**. `Vali_Time.Enums.HumanizeCulture` (`En` / `Es`) is a small, Vali-Time-owned enum consumed by `Vali-Age`'s `Humanize()` relative-time formatter — it has no behavior of its own in this package beyond being the shared culture selector.
 
 ## Complete Example
 
 ```csharp
 public class WorklogService(IValiTime time)
 {
-    public void AnalyzeWorklog(decimal[] taskDurationsInMinutes)
+    public void AnalyzeWorklog(List<(decimal time, TimeUnit unit)> taskDurations)
     {
         // Total in hours
-        decimal totalHours = time.SumTimes(taskDurationsInMinutes, TimeUnit.Minutes, TimeUnit.Hours);
+        decimal totalHours = time.SumTimes(TimeUnit.Hours, taskDurations, decimalPlaces: 2);
 
         // Best display unit
         decimal totalSeconds = time.Convert(totalHours, TimeUnit.Hours, TimeUnit.Seconds);
@@ -241,7 +312,7 @@ public class WorklogService(IValiTime time)
         string formatted = time.FormatTime(totalHours, TimeUnit.Hours, 1);
 
         // Break down into components
-        var parts = time.Breakdown(totalHours, TimeUnit.Hours);
+        var parts = time.Breakdown(totalSeconds);
 
         Console.WriteLine($"Total work: {formatted}");
         Console.WriteLine($"Hours: {parts[TimeUnit.Hours]}, Minutes: {parts[TimeUnit.Minutes]}");

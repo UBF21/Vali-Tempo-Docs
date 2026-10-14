@@ -11,6 +11,17 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic V
 
 ---
 
+## [1.1.0] — 2026-10-14
+
+### Added
+- `DurationStringParser` — public parser (`Parse`/`TryParse`) extracted from `ParseTime`'s duration-string grammar, reused by `Vali-Duration`'s `IParsable<ValiDuration>` so both packages agree on exactly one grammar.
+- `HumanizeCulture` enum (`En`/`Es`), reused by `Vali-Age`'s `Humanize()` relative-time formatter.
+- `Constants.IsClampedMonthEnd(originalDay, candidate)` — shared month-end-clamp detection, reused by `ValiAge.Exact()`.
+- `net10.0` target framework.
+
+### Changed
+- `StartOfWeek`/`IsWeekend`/`IsWeekday` consolidated into `DateTimeExtensions` as the single source of truth (previously duplicated across other packages).
+
 ## [1.0.1] — 2026-03-25
 
 ### Changed

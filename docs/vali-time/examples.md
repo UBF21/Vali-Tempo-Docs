@@ -31,9 +31,9 @@ Console.WriteLine($"{hours} hours"); // → 2 hours
 
 ---
 
-## SumTimes — Add Durations from Multiple Tasks
+## SumTimes — Add Durations Expressed in Different Units
 
-Sum a list of task durations expressed in minutes and get the total in hours.
+Sum several task durations — each possibly in a different unit — and get the total in hours.
 
 ```csharp
 using Vali_Time.Core;
@@ -41,11 +41,16 @@ using Vali_Time.Enums;
 
 var vt = new ValiTime();
 
-decimal[] taskMinutes = { 45m, 90m, 30m, 75m };
+var tasks = new List<(decimal time, TimeUnit unit)>
+{
+    (45m, TimeUnit.Minutes),
+    (1m,  TimeUnit.Hours),
+    (30m, TimeUnit.Minutes),
+};
 
-decimal totalHours = vt.SumTimes(taskMinutes, TimeUnit.Minutes, TimeUnit.Hours);
+decimal totalHours = vt.SumTimes(TimeUnit.Hours, tasks, decimalPlaces: 2);
 
-Console.WriteLine($"Total work: {totalHours} hours"); // → 4 hours
+Console.WriteLine($"Total work: {totalHours} hours"); // → 2.25 hours
 ```
 
 :::tip Try it live
@@ -56,7 +61,7 @@ Console.WriteLine($"Total work: {totalHours} hours"); // → 4 hours
 
 ## ParseTime — Parse a Human-Readable Duration String
 
-Parse a plain-text duration string into a typed value and unit, ready for further processing.
+Parse a plain-text duration string into total seconds, ready for further conversion.
 
 ```csharp
 using Vali_Time.Core;
@@ -64,12 +69,34 @@ using Vali_Time.Enums;
 
 var vt = new ValiTime();
 
-(decimal value, TimeUnit unit) = vt.ParseTime("1.5 hours");
+decimal seconds = vt.ParseTime("1h 30m");
 
-decimal inMinutes = vt.Convert(value, unit, TimeUnit.Minutes);
+decimal inMinutes = vt.Convert(seconds, TimeUnit.Seconds, TimeUnit.Minutes);
 
-Console.WriteLine($"Parsed: {value} {unit}");   // → Parsed: 1.5 Hours
-Console.WriteLine($"In minutes: {inMinutes}");  // → In minutes: 90
+Console.WriteLine($"Parsed: {seconds} seconds");   // → Parsed: 5400 seconds
+Console.WriteLine($"In minutes: {inMinutes}");     // → In minutes: 90
+```
+
+:::tip Try it live
+[▶ Open in dotnetfiddle](https://dotnetfiddle.net) — Add the **Vali-Time** NuGet package in the fiddle settings.
+:::
+
+---
+
+## DurationStringParser — Reuse the Duration Grammar Standalone
+
+Since **1.1.0**, the same colon-separated/labelled-token grammar behind `ParseTime` is also available as a standalone static utility — no `ValiTime` instance needed. `Vali-Duration`'s `IParsable<ValiDuration>` reuses it directly.
+
+```csharp
+using Vali_Time.Utils;
+
+decimal seconds = DurationStringParser.Parse("2d 4h 30m 15s");
+Console.WriteLine(seconds); // → 188415
+
+if (DurationStringParser.TryParse("garbage", out decimal result))
+    Console.WriteLine(result);
+else
+    Console.WriteLine("Could not parse"); // this branch runs
 ```
 
 :::tip Try it live

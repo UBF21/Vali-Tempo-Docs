@@ -22,7 +22,7 @@ decimal months = date.Diff(new DateTime(2024, 1, 1), new DateTime(2025, 6, 15), 
 // → ~17.45
 ```
 
-**Signature:** `decimal Diff(DateTime from, DateTime to, TimeUnit unit)`
+**Signature:** `decimal Diff(DateTime from, DateTime to, TimeUnit unit, int? decimalPlaces = null)`
 
 ### Add
 
@@ -62,7 +62,7 @@ DateTime startOfWeek = date.StartOf(DateTime.Today, DatePart.DayOfWeek);
 // → Monday (or Sunday) of current week
 ```
 
-**Signature:** `DateTime StartOf(DateTime dt, DatePart part)`
+**Signature:** `DateTime StartOf(DateTime date, DatePart part, WeekStart? weekStart = null)`
 
 ### EndOf
 
@@ -76,7 +76,7 @@ DateTime endOfYear = date.EndOf(DateTime.Today, DatePart.Year);
 // → December 31st, 23:59:59.9999999
 ```
 
-**Signature:** `DateTime EndOf(DateTime dt, DatePart part)`
+**Signature:** `DateTime EndOf(DateTime date, DatePart part, WeekStart? weekStart = null)`
 
 ### IsBefore
 
@@ -123,7 +123,7 @@ bool sameYear = date.IsSamePeriod(new DateTime(2025, 1, 1), new DateTime(2025, 1
 // → true
 ```
 
-**Signature:** `bool IsSamePeriod(DateTime a, DateTime b, DatePart part)`
+**Signature:** `bool IsSamePeriod(DateTime a, DateTime b, DatePart part, WeekStart? weekStart = null)`
 
 ### IsWeekend
 
@@ -152,28 +152,28 @@ bool weekday = date.IsWeekday(new DateTime(2025, 3, 17)); // Monday
 Return `true` if the year of the given date is a leap year:
 
 ```csharp
-bool leap = date.IsLeapYear(new DateTime(2024, 6, 1));
+bool leap = date.IsLeapYear(2024);
 // → true
 
-bool notLeap = date.IsLeapYear(new DateTime(2025, 6, 1));
+bool notLeap = date.IsLeapYear(2025);
 // → false
 ```
 
-**Signature:** `bool IsLeapYear(DateTime dt)`
+**Signature:** `bool IsLeapYear(int year)`
 
 ### DaysInMonth
 
-Return the number of days in the month of the given date:
+Return the number of days in the given month of the given year:
 
 ```csharp
-int days = date.DaysInMonth(new DateTime(2024, 2, 10)); // Leap February
+int days = date.DaysInMonth(2024, 2); // Leap February
 // → 29
 
-int days2 = date.DaysInMonth(new DateTime(2025, 1, 5));
+int days2 = date.DaysInMonth(2025, 1);
 // → 31
 ```
 
-**Signature:** `int DaysInMonth(DateTime dt)`
+**Signature:** `int DaysInMonth(int year, int month)`
 
 ### WeekOfYear
 
