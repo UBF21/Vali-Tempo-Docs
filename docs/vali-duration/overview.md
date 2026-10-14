@@ -2,6 +2,8 @@
 id: overview
 title: Vali-Duration Overview
 sidebar_label: Overview
+description: Vali-Duration provides human-readable duration formatting for .NET — convert TimeSpan and decimal durations into natural language strings.
+keywords: [Vali-Duration, duration formatting, TimeSpan, .NET, NuGet, C#, human readable]
 ---
 
 # Vali-Duration
@@ -16,7 +18,7 @@ dotnet add package Vali-Duration
 
 ## ValiDuration Struct
 
-`ValiDuration` stores its value as `decimal` milliseconds internally, avoiding floating-point drift in arithmetic operations.
+`ValiDuration` stores its value as `decimal` seconds internally, avoiding floating-point drift in arithmetic operations.
 
 ### Factory Methods
 
@@ -76,11 +78,13 @@ Format the duration as a human-readable string:
 
 ```csharp
 var d = ValiDuration.FromMinutes(90m);
-Console.WriteLine(d.Format());         // → "1h 30m"
-Console.WriteLine(d.Format(1));        // → "1.5 hours"
+Console.WriteLine(d.Format());         // → "1.50 h"
+Console.WriteLine(d.Format(1));        // → "1.5 h"
 ```
 
-**Signature:** `string Format(int decimalPlaces = 0)`
+`Format` always picks a single best-fit unit (weeks, days, hours, minutes, seconds, or milliseconds) — it never combines units like `"1h 30m"`.
+
+**Signature:** `string Format(int decimalPlaces = 2)`
 
 #### ToTimeSpan
 
@@ -132,6 +136,37 @@ ValiDuration d = TimeSpan.FromHours(2); // implicit
 // To TimeSpan
 TimeSpan ts = ValiDuration.FromMinutes(90m); // implicit
 ```
+
+### Parsing (IParsable\<ValiDuration\>)
+
+`ValiDuration` implements `IParsable<ValiDuration>`, sharing its grammar with `Vali-Time`'s `IValiTime.ParseTime` via the public `DurationStringParser`. It accepts colon-separated clock notation (`"hh:mm:ss"`, `"mm:ss"`) or combinable unit-labelled tokens (`"2d 4h 30m 15s"`, `"1h 30m"`, `"500ms"`, `"90 minutes"`).
+
+```csharp
+ValiDuration a = ValiDuration.Parse("1h 30m");          // 1.5 hours
+ValiDuration b = ValiDuration.Parse("45:30");           // mm:ss → 45m 30s
+ValiDuration c = ValiDuration.Parse("2d 4h 30m 15s");   // combined tokens
+
+bool ok   = ValiDuration.TryParse("2h", null, out ValiDuration result);           // true
+bool fail = ValiDuration.TryParse("not-a-duration", null, out ValiDuration zero); // false, zero == ValiDuration.Zero
+```
+
+Recognised unit tokens: `ms`/`milliseconds`, `s`/`sec`/`seconds`, `m`/`min`/`minutes`, `h`/`hr`/`hours`, `d`/`days`, `w`/`weeks`, `mo`/`months`, `yr`/`years`. Parsing is always culture-invariant and case-insensitive.
+
+**Signature:** `static ValiDuration Parse(string s, IFormatProvider? provider = null)` / `static bool TryParse(string? s, IFormatProvider? provider, out ValiDuration result)`
+
+### IFormattable
+
+`ValiDuration` also implements `IFormattable`. When the format string parses as a non-negative integer, it is used as the `decimalPlaces` argument to `Format(int)`; any other value (including `null` or `"G"`) falls back to the 2-decimal default:
+
+```csharp
+var d = ValiDuration.FromMinutes(90m); // 1.5 hours
+
+string oneDecimal = d.ToString("1");  // → "1.5 h"
+string defaultFmt = d.ToString();     // → "1.50 h"
+string interp      = $"{d:1}";        // → "1.5 h"
+```
+
+**Signature:** `string ToString(string? format, IFormatProvider? formatProvider)`
 
 ## Complete Example
 

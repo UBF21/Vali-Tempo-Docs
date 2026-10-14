@@ -30,15 +30,15 @@ sw.Stop();
 
 ValiDuration elapsed = ValiDuration.FromTimeSpan(sw.Elapsed);
 
-Console.WriteLine($"Raw milliseconds : {elapsed.TotalMilliseconds:F3} ms");
-Console.WriteLine($"Formatted (0 dp) : {elapsed.Format()}");
-Console.WriteLine($"Formatted (2 dp) : {elapsed.Format(2)}");
-Console.WriteLine($"Sum result       : {sum}");
+Console.WriteLine($"Raw milliseconds        : {elapsed.TotalMilliseconds:F3} ms");
+Console.WriteLine($"Formatted default (2dp) : {elapsed.Format()}");
+Console.WriteLine($"Formatted (0 dp)        : {elapsed.Format(0)}");
+Console.WriteLine($"Sum result              : {sum}");
 // Example output:
-// Raw milliseconds : 18.472 ms
-// Formatted (0 dp) : 18ms
-// Formatted (2 dp) : 0.02 seconds
-// Sum result       : 49999995000000
+// Raw milliseconds        : 18.472 ms
+// Formatted default (2dp) : 18.47 ms
+// Formatted (0 dp)        : 18 ms
+// Sum result              : 49999995000000
 ```
 
 :::tip Try it live
@@ -69,10 +69,10 @@ Console.WriteLine($"Minus break         : {netWork.Format()}");
 Console.WriteLine($"Double shift        : {doubleShift.Format()}");
 Console.WriteLine($"Half shift          : {halfShift.Format()}");
 // Output:
-// Meeting + Deep work : 2h 45m
-// Minus break         : 2h 30m
-// Double shift        : 5h
-// Half shift          : 1h 15m
+// Meeting + Deep work : 2.75 h
+// Minus break         : 2.50 h
+// Double shift        : 5.00 h
+// Half shift          : 1.25 h
 ```
 
 :::tip Try it live
@@ -88,7 +88,7 @@ Use `As(TimeUnit)` to extract the duration expressed as a `decimal` in any suppo
 ```csharp
 using System;
 using Vali_Duration.Models;
-using Vali_Duration.Enums;
+using Vali_Time.Enums;
 
 var sprint = ValiDuration.FromDays(14m);
 
@@ -164,9 +164,44 @@ foreach (var s in sessions)
 // shortDay != workday   : True
 // overtime >= workday   : True
 // shortDay <= workday   : True
-//   1h 30m => PARTIAL
-//   3h => PARTIAL
-//   45m => PARTIAL
+//   1.50 h => PARTIAL
+//   3.00 h => PARTIAL
+//   45.00 min => PARTIAL
+```
+
+:::tip Try it live
+[▶ Open in dotnetfiddle](https://dotnetfiddle.net) — Add the **Vali-Duration** NuGet package in the fiddle settings.
+:::
+
+---
+
+## Parse / TryParse — Parsing human-readable duration strings
+
+`ValiDuration` implements `IParsable<ValiDuration>`, accepting colon-separated clock notation or unit-labelled tokens (same grammar as `Vali-Time`'s `ParseTime`).
+
+```csharp
+using System;
+using Vali_Duration.Models;
+
+ValiDuration oneHourThirty = ValiDuration.Parse("1h 30m");
+ValiDuration clockStyle    = ValiDuration.Parse("45:30");         // mm:ss
+ValiDuration combined      = ValiDuration.Parse("2d 4h 30m 15s");
+
+Console.WriteLine($"1h 30m        : {oneHourThirty.Format()}");
+Console.WriteLine($"45:30 (mm:ss) : {clockStyle.Format()}");
+Console.WriteLine($"2d 4h 30m 15s : {combined.Format()}");
+
+bool ok   = ValiDuration.TryParse("2h", null, out ValiDuration twoHours);
+bool fail = ValiDuration.TryParse("not-a-duration", null, out ValiDuration zero);
+
+Console.WriteLine($"TryParse '2h'            : {ok} -> {twoHours.Format()}");
+Console.WriteLine($"TryParse 'not-a-duration' : {fail} -> {zero.Format()}");
+// Output:
+// 1h 30m        : 1.50 h
+// 45:30 (mm:ss) : 45.50 min
+// 2d 4h 30m 15s : 2.19 d
+// TryParse '2h'            : True -> 2.00 h
+// TryParse 'not-a-duration' : False -> 0.00 ms
 ```
 
 :::tip Try it live

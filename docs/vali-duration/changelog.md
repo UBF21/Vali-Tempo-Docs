@@ -11,6 +11,18 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic V
 
 ---
 
+## [1.1.0]
+
+### Added
+- `IParsable<ValiDuration>` — `Parse`/`TryParse` human-readable duration strings (colon-separated `"hh:mm:ss"`/`"mm:ss"` or unit-labelled tokens like `"2d 4h 30m 15s"`), via the shared `DurationStringParser` extracted from `Vali-Time`.
+- `IFormattable` — `ToString(string?, IFormatProvider?)`, using the format string as `Format(int)`'s `decimalPlaces` when it parses as a non-negative integer.
+- Added net10.0 target framework.
+
+### Changed
+- Now depends on `Vali-Time` 1.1.0 (for the shared `DurationStringParser`). No breaking changes.
+
+---
+
 ## [1.0.0] — 2025-07-01
 
 ### Added
