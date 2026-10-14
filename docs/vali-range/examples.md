@@ -23,7 +23,7 @@ DateRange quarter = vr.ThisQuarter();
 
 Console.WriteLine($"Quarter start: {quarter.Start:yyyy-MM-dd}");  // e.g. → 2025-01-01
 Console.WriteLine($"Quarter end:   {quarter.End:yyyy-MM-dd}");    // e.g. → 2025-03-31
-Console.WriteLine($"Total days:    {quarter.TotalDays}");         // → 90
+Console.WriteLine($"Total days:    {quarter.Duration(TimeUnit.Days)}"); // → 90
 ```
 
 :::tip Try it live
@@ -49,10 +49,10 @@ Console.WriteLine($"Overlap: {doOverlap}"); // → True
 
 if (doOverlap)
 {
-    DateRange shared = vr.Intersection(projectA, projectB);
-    Console.WriteLine($"Shared period: {shared.Start:yyyy-MM-dd} → {shared.End:yyyy-MM-dd}");
+    DateRange? shared = vr.Intersection(projectA, projectB);
+    Console.WriteLine($"Shared period: {shared.Value.Start:yyyy-MM-dd} → {shared.Value.End:yyyy-MM-dd}");
     // → 2025-03-01 → 2025-04-30
-    Console.WriteLine($"Shared days: {shared.TotalDays}"); // → 61
+    Console.WriteLine($"Shared days: {shared.Value.Duration(TimeUnit.Days)}"); // → 61
 }
 ```
 
@@ -117,13 +117,43 @@ var gaps = vr.Gaps(scheduled, year).ToList();
 Console.WriteLine($"Unscheduled periods: {gaps.Count}");
 foreach (var gap in gaps)
 {
-    Console.WriteLine($"  {gap.Start:MMM dd} → {gap.End:MMM dd} ({gap.TotalDays} days)");
+    Console.WriteLine($"  {gap.Start:MMM dd} → {gap.End:MMM dd} ({gap.Duration(TimeUnit.Days)} days)");
 }
 
 // → Jan 01 → Jan 14  (14 days)
 // → Apr 01 → Apr 30  (30 days)
 // → Aug 01 → Aug 31  (31 days)
 // → Dec 01 → Dec 31  (31 days)
+```
+
+:::tip Try it live
+[▶ Open in dotnetfiddle](https://dotnetfiddle.net) — Add the **Vali-Range** NuGet package in the fiddle settings.
+:::
+
+---
+
+## Subtract — Remove a Blackout Period From a Booking Window
+
+Carve a maintenance blackout window out of a resource's booking availability, keeping whatever
+remains on either side.
+
+```csharp
+using Vali_Range.Core;
+
+var vr = new ValiRange();
+
+var availability = vr.Create(new DateTime(2025, 1, 1), new DateTime(2025, 1, 31));
+var blackout      = vr.Create(new DateTime(2025, 1, 10), new DateTime(2025, 1, 20));
+
+IEnumerable<DateRange> bookable = vr.Subtract(availability, blackout);
+
+foreach (DateRange window in bookable)
+{
+    Console.WriteLine($"  {window.Start:yyyy-MM-dd} → {window.End:yyyy-MM-dd}");
+}
+
+// → 2025-01-01 → 2025-01-09
+// → 2025-01-21 → 2025-01-31
 ```
 
 :::tip Try it live

@@ -2,6 +2,8 @@
 id: overview
 title: Vali-Range Overview
 sidebar_label: Overview
+description: Vali-Range provides date range operations for .NET — check overlaps, containment, duration, and iterate over date ranges with precision.
+keywords: [Vali-Range, date range, .NET, NuGet, overlap, C#, date interval]
 ---
 
 # Vali-Range
@@ -13,6 +15,8 @@ sidebar_label: Overview
 ```bash
 dotnet add package Vali-Range
 ```
+
+Compiled targets: `net8.0` · `net9.0` · `net10.0`. Compatible with .NET 6 and .NET 7 via NuGet backward compatibility.
 
 ## Registration
 
@@ -30,18 +34,17 @@ builder.Services.AddValiTempo();
 var range = new DateRange(new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
 Console.WriteLine(range.Start); // 2025-01-01
 Console.WriteLine(range.End);   // 2025-03-31
-Console.WriteLine(range.Duration); // TimeSpan of 90 days
+Console.WriteLine(range.Duration(TimeUnit.Days)); // 89
 ```
 
-**Properties:**
+**Members:**
 
-| Property | Type | Description |
+| Member | Type | Description |
 |---|---|---|
 | `Start` | `DateTime` | Inclusive start date |
 | `End` | `DateTime` | Inclusive end date |
-| `Duration` | `TimeSpan` | `End - Start` |
-| `TotalDays` | `int` | Number of calendar days |
-| `IsEmpty` | `bool` | True when Start == End or range is invalid |
+| `IsValid` | `bool` | `true` when `Start <= End` |
+| `Duration(TimeUnit)` | `decimal` | Length of the range expressed in the given unit |
 
 ## IValiRange API
 
@@ -61,23 +64,27 @@ Create a range covering the last N units before a reference date:
 
 ```csharp
 DateRange last30Days = range.LastUnits(30, TimeUnit.Days);
-DateRange last3Months = range.LastUnits(3, TimeUnit.Months, referenceDate: DateTime.Today);
+DateRange last3Months = range.LastUnits(3, TimeUnit.Months);
 ```
 
-**Signature:** `DateRange LastUnits(int count, TimeUnit unit, DateTime? referenceDate = null)`
+**Signature:** `DateRange LastUnits(decimal amount, TimeUnit unit)`
+
+`End` is the current instant (`DateTime.Now`); `Start` is `amount` units earlier.
 
 > **Note:** `amount` must be greater than 0. Passing 0 or a negative value throws `ArgumentException`.
 
 ### NextUnits
 
-Create a range covering the next N units after a reference date:
+Create a range covering the next N units from the current instant:
 
 ```csharp
 DateRange next7Days   = range.NextUnits(7, TimeUnit.Days);
-DateRange nextQuarter = range.NextUnits(1, TimeUnit.Months, count: 3);
+DateRange nextQuarter = range.NextUnits(3, TimeUnit.Months);
 ```
 
-**Signature:** `DateRange NextUnits(int count, TimeUnit unit, DateTime? referenceDate = null)`
+**Signature:** `DateRange NextUnits(decimal amount, TimeUnit unit)`
+
+`Start` is the current instant (`DateTime.Now`); `End` is `amount` units later.
 
 > **Note:** `amount` must be greater than 0. Passing 0 or a negative value throws `ArgumentException`.
 
@@ -94,20 +101,17 @@ DateRange year    = range.ThisYear();
 
 ### Contains
 
-Check if a date or another range is fully contained:
+Check if a date falls within a range (inclusive on both ends):
 
 ```csharp
 bool has = range.Contains(myRange, new DateTime(2025, 6, 15));
-bool sub = range.Contains(myRange, subRange);
 ```
 
-**Signature:**
-- `bool Contains(DateRange range, DateTime date)`
-- `bool Contains(DateRange range, DateRange other)`
+**Signature:** `bool Contains(DateRange range, DateTime date)`
 
 ### Overlaps
 
-Check if two ranges overlap (share at least one day):
+Check if two ranges overlap (share at least one point in time):
 
 ```csharp
 bool overlapping = range.Overlaps(rangeA, rangeB);
@@ -123,18 +127,18 @@ Check if the first range is entirely within the second:
 bool inside = range.IsContainedBy(inner, outer);
 ```
 
-**Signature:** `bool IsContainedBy(DateRange range, DateRange container)`
+**Signature:** `bool IsContainedBy(DateRange inner, DateRange outer)`
 
 ### Intersection
 
-Return the overlapping portion of two ranges (or an empty range if they don't overlap):
+Return the overlapping portion of two ranges, or `null` if they don't overlap:
 
 ```csharp
-DateRange overlap = range.Intersection(rangeA, rangeB);
-// → DateRange covering the shared days
+DateRange? overlap = range.Intersection(rangeA, rangeB);
+// → DateRange covering the shared days, or null when there is no overlap
 ```
 
-**Signature:** `DateRange Intersection(DateRange a, DateRange b)`
+**Signature:** `DateRange? Intersection(DateRange a, DateRange b)`
 
 ### Union
 
@@ -146,39 +150,54 @@ DateRange merged = range.Union(rangeA, rangeB);
 
 **Signature:** `DateRange Union(DateRange a, DateRange b)`
 
+### Subtract
+
+Return the set-theoretic difference `A \ B` — the portion(s) of `a` that remain after removing
+every point also covered by `b`:
+
+```csharp
+IEnumerable<DateRange> remainder = range.Subtract(rangeA, rangeB);
+```
+
+**Signature:** `IEnumerable<DateRange> Subtract(DateRange a, DateRange b)`
+
+Yields zero, one, or two non-overlapping ranges depending on how `b` overlaps `a`: zero when
+`b` fully contains `a`, one when the overlap only touches one end of `a` (or there is no overlap
+at all, in which case `a` is returned unchanged), or two when `b` falls strictly inside `a`.
+
 ### Expand
 
-Extend a range by N units on one or both ends:
+Extend a range by N units on both ends:
 
 ```csharp
 DateRange expanded = range.Expand(myRange, 7, TimeUnit.Days);
 // Adds 7 days on each side
-
-DateRange expandedStart = range.Expand(myRange, 7, TimeUnit.Days, expandStart: true, expandEnd: false);
 ```
 
-**Signature:** `DateRange Expand(DateRange range, int amount, TimeUnit unit, bool expandStart = true, bool expandEnd = true)`
+**Signature:** `DateRange Expand(DateRange range, decimal amount, TimeUnit unit)`
 
 ### Shrink
 
-Contract a range by N units from one or both ends:
+Contract a range by N units from both ends:
 
 ```csharp
 DateRange shrunk = range.Shrink(myRange, 1, TimeUnit.Weeks);
 ```
 
-**Signature:** `DateRange Shrink(DateRange range, int amount, TimeUnit unit, bool shrinkStart = true, bool shrinkEnd = true)`
+**Signature:** `DateRange Shrink(DateRange range, decimal amount, TimeUnit unit)`
+
+Throws `ArgumentException` if the resulting range would be invalid (`Start > End`).
 
 ### Shift
 
-Move a range forward or backward in time:
+Move a range forward or backward in time, keeping its length unchanged:
 
 ```csharp
 DateRange shifted = range.Shift(myRange, 1, TimeUnit.Months); // forward
 DateRange back    = range.Shift(myRange, -2, TimeUnit.Weeks);  // backward
 ```
 
-**Signature:** `DateRange Shift(DateRange range, int amount, TimeUnit unit)`
+**Signature:** `DateRange Shift(DateRange range, decimal amount, TimeUnit unit)`
 
 ### IsAdjacent
 
@@ -265,7 +284,7 @@ public class ProjectAnalyzer(IValiRange range)
     {
         var project = range.Create(projectStart, projectEnd);
 
-        Console.WriteLine($"Duration: {project.TotalDays} days");
+        Console.WriteLine($"Duration: {project.Duration(TimeUnit.Days)} days");
 
         // Split into monthly sprints
         var sprints = range.SplitByMonth(project).ToList();
@@ -278,7 +297,7 @@ public class ProjectAnalyzer(IValiRange range)
         // Compute Q-by-Q breakdown
         foreach (var quarter in range.SplitByQuarter(project))
         {
-            Console.WriteLine($"  {quarter.Start:MMM dd} – {quarter.End:MMM dd}: {quarter.TotalDays} days");
+            Console.WriteLine($"  {quarter.Start:MMM dd} – {quarter.End:MMM dd}: {quarter.Duration(TimeUnit.Days)} days");
         }
     }
 }

@@ -11,6 +11,16 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic V
 
 ---
 
+## [1.1.0] — 2026-10-14
+
+### Added
+- `IValiRange.Subtract(DateRange a, DateRange b)` — set-theoretic difference A \ B, completing the Intersection/Union/Subtract trio.
+
+### Changed
+- Added `net10.0` target framework. Still pins `Vali-Time` at 1.0.1 — doesn't need any of its newer members.
+
+---
+
 ## [1.0.0] — 2025-07-01
 
 ### Added
