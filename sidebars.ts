@@ -38,7 +38,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Vali-Schedule',
-      items: ['vali-schedule/overview', 'vali-schedule/examples', 'vali-schedule/changelog'],
+      items: ['vali-schedule/overview', 'vali-schedule/cron', 'vali-schedule/examples', 'vali-schedule/changelog'],
     },
     {
       type: 'category',
@@ -49,6 +49,16 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Vali-TimeZone',
       items: ['vali-timezone/overview', 'vali-timezone/examples', 'vali-timezone/changelog'],
+    },
+    {
+      type: 'category',
+      label: 'Vali-BusinessHours',
+      items: ['vali-businesshours/overview', 'vali-businesshours/examples', 'vali-businesshours/changelog'],
+    },
+    {
+      type: 'category',
+      label: 'Vali-Bucket',
+      items: ['vali-bucket/overview', 'vali-bucket/examples', 'vali-bucket/changelog'],
     },
     'packages',
   ],

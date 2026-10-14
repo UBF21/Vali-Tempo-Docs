@@ -73,6 +73,63 @@ const FEATURES: Feature[] = [
   },
 ];
 
+const FEATURES_ES: Feature[] = [
+  {
+    icon: '⏱',
+    title: 'Vali-Time',
+    description:
+      'Conversiones de unidades de tiempo con precisión decimal. Convierte entre milisegundos, segundos, minutos, horas, días y más. Formatea, limita, compara y desglosa duraciones.',
+  },
+  {
+    icon: '📅',
+    title: 'Vali-Date',
+    description:
+      'Aritmética de fechas completa — diff, add, subtract, startOf, endOf, isWeekend, isLeapYear, weekOfYear, dayOfYear, progreso en año/mes y operaciones trimestrales.',
+  },
+  {
+    icon: '📆',
+    title: 'Vali-Range',
+    description:
+      'Operaciones de rango de fechas expresivas: unión, intersección, huecos, división por día/semana/mes/trimestre. Enumera días laborables, expande, contrae, desplaza y fusiona rangos.',
+  },
+  {
+    icon: '🗓',
+    title: 'Vali-Calendar',
+    description:
+      'Calendario laboral con soporte de proveedor de festivos conectable. Calcula días laborables entre fechas, agrega días laborables, consulta semanas y meses, y detecta límites de primer/último día.',
+  },
+  {
+    icon: '⏳',
+    title: 'Vali-Duration',
+    description:
+      'Tipo de valor Duration decimal de alta precisión. Métodos de fábrica de milisegundos a años, operadores aritméticos completos, interoperabilidad con TimeSpan, formateo y conversión de unidades.',
+  },
+  {
+    icon: '🎂',
+    title: 'Vali-Age',
+    description:
+      'Cálculo de edad desde una fecha de nacimiento. Obtén años, desglose exacto, cadenas formateadas, descripciones relativas, detección de cumpleaños, próximo/anterior cumpleaños y días hasta el cumpleaños.',
+  },
+  {
+    icon: '🔄',
+    title: 'Vali-Schedule',
+    description:
+      'Constructor fluido para programaciones recurrentes — diaria, semanal, mensual, anual. Consulta próximas/anteriores ocurrencias, enumera ocurrencias en un rango y usa predicados personalizados.',
+  },
+  {
+    icon: '🌍',
+    title: 'Vali-Holiday',
+    description:
+      'Datos de festivos de 35+ países con festivos móviles basados en Pascua. Registra proveedores, verifica si una fecha es festivo, obtén próximos/anteriores festivos y detecta puentes.',
+  },
+  {
+    icon: '🌐',
+    title: 'Vali-TimeZone',
+    description:
+      '45+ zonas IANA curadas. Convierte entre zonas, gestiona el horario de verano (DST), calcula diferencias de offset, encuentra zonas por país, formatea con información de zona y compara instantes.',
+  },
+];
+
 // ─── Package data ─────────────────────────────────────────────────────────────
 
 interface Package {
@@ -91,22 +148,102 @@ const PACKAGES: Package[] = [
   { name: 'Vali-Schedule', description: 'Fluent builder for recurring schedules — daily, weekly, monthly, yearly.',               nuget: 'https://www.nuget.org/packages/Vali-Schedule' },
   { name: 'Vali-Holiday',  description: '35+ country holiday data with Easter-based movable holidays and IHolidayProvider.',      nuget: 'https://www.nuget.org/packages/Vali-Holiday' },
   { name: 'Vali-TimeZone', description: '45+ curated IANA timezone zones with DST support and offset computation.',               nuget: 'https://www.nuget.org/packages/Vali-TimeZone' },
-  { name: 'Vali-Tempo',    description: 'Meta-package that includes all 9 modules. One install, one AddValiTempo() call.',        nuget: 'https://www.nuget.org/packages/Vali-Tempo' },
+  { name: 'Vali-BusinessHours', description: 'Cross-timezone business-hours overlap, DST-correct and midnight-crossing aware.',   nuget: 'https://www.nuget.org/packages/Vali-BusinessHours' },
+  { name: 'Vali-Bucket',   description: 'Fixed-size, anchor-aligned time-series bucketing and aggregation.',                      nuget: 'https://www.nuget.org/packages/Vali-Bucket' },
+  { name: 'Vali-Tempo',    description: 'Meta-package that includes all 11 modules. One install, one AddValiTempo() call.',       nuget: 'https://www.nuget.org/packages/Vali-Tempo' },
 ];
 
-// ─── Module steps ─────────────────────────────────────────────────────────────
-
-const MODULE_STEPS = [
-  { label: 'ValiTime',     color: 'violet', icon: '⏱', desc: 'unit conversion · formatting' },
-  { label: 'ValiDate',     color: 'violet', icon: '📅', desc: 'date arithmetic · quarters' },
-  { label: 'ValiRange',    color: 'violet', icon: '📆', desc: 'union · intersection · gaps' },
-  { label: 'ValiCalendar', color: 'violet', icon: '🗓', desc: 'workdays · weeks · months' },
-  { label: 'ValiDuration', color: 'violet', icon: '⏳', desc: 'decimal · precision · interop' },
-  { label: 'ValiAge',      color: 'violet', icon: '🎂', desc: 'years · months · birthdays' },
-  { label: 'ValiSchedule', color: 'violet', icon: '🔄', desc: 'daily · weekly · monthly' },
-  { label: 'ValiHoliday',  color: 'gold',   icon: '🌍', desc: '35+ countries · Easter' },
-  { label: 'ValiTimeZone', color: 'gold',   icon: '🌐', desc: '45+ IANA zones · DST' },
+const PACKAGES_ES: Package[] = [
+  { name: 'Vali-Time',     description: 'Conversiones de unidades de tiempo con precisión decimal. Clases ValiTime + ValiDate.',                 nuget: 'https://www.nuget.org/packages/Vali-Time' },
+  { name: 'Vali-Range',    description: 'Operaciones de rango de fechas — unión, intersección, huecos, división, enumeración de días laborables.', nuget: 'https://www.nuget.org/packages/Vali-Range' },
+  { name: 'Vali-Calendar', description: 'Motor de calendario laboral con soporte de proveedor de festivos conectable.',                              nuget: 'https://www.nuget.org/packages/Vali-Calendar' },
+  { name: 'Vali-Duration', description: 'Tipo de valor Duration decimal de alta precisión con operadores aritméticos completos.',                    nuget: 'https://www.nuget.org/packages/Vali-Duration' },
+  { name: 'Vali-CountDown',description: 'Seguimiento de plazos, utilidades de cuenta regresiva, progreso y desglose.',                              nuget: 'https://www.nuget.org/packages/Vali-CountDown' },
+  { name: 'Vali-Age',      description: 'Cálculo de edad desde fecha de nacimiento. Struct AgeResult con años, meses, días.',                       nuget: 'https://www.nuget.org/packages/Vali-Age' },
+  { name: 'Vali-Schedule', description: 'Constructor fluido para programaciones recurrentes — diaria, semanal, mensual, anual.',                    nuget: 'https://www.nuget.org/packages/Vali-Schedule' },
+  { name: 'Vali-Holiday',  description: 'Datos de festivos de 35+ países con festivos móviles basados en Pascua e IHolidayProvider.',               nuget: 'https://www.nuget.org/packages/Vali-Holiday' },
+  { name: 'Vali-TimeZone', description: '45+ zonas IANA curadas con soporte DST y cálculo de offset.',                                             nuget: 'https://www.nuget.org/packages/Vali-TimeZone' },
+  { name: 'Vali-BusinessHours', description: 'Solapamiento de horario laboral entre zonas horarias, correcto con DST y cruces de medianoche.',     nuget: 'https://www.nuget.org/packages/Vali-BusinessHours' },
+  { name: 'Vali-Bucket',   description: 'Agrupación y agregación de series temporales en buckets de tamaño fijo alineados a un ancla.',            nuget: 'https://www.nuget.org/packages/Vali-Bucket' },
+  { name: 'Vali-Tempo',    description: 'Meta-paquete que incluye los 11 módulos. Una instalación, una llamada AddValiTempo().',                    nuget: 'https://www.nuget.org/packages/Vali-Tempo' },
 ];
+
+
+// ─── Translations ─────────────────────────────────────────────────────────────
+
+const TRANSLATIONS = {
+  en: {
+    heroBadge: '35+ countries · 45+ IANA zones · .NET 8/9',
+    heroTagline: 'time precision for .NET — dates, calendars & timezones',
+    heroSubtitle: 'Nine modules. One ecosystem. Precision time.',
+    heroModulesLabel: 'Available modules',
+    statModules: 'modules',
+    statCountries: 'countries',
+    statSupported: 'supported',
+    ctaGetStarted: 'Get started →',
+    ctaReadDocs: 'Read the docs',
+    featuresSectionTitle: 'Everything you need for precise time handling',
+    featuresSectionSubtitle: 'Built for .NET developers who need accurate date, time, and timezone operations.',
+    pipelineBadge: 'precision ecosystem',
+    pipelineTitle: 'Nine modules. One time ecosystem.',
+    pipelineSubtitle: 'Nine focused packages. Use one or all — they compose naturally.',
+    packagesSectionTitle: '12 NuGet packages. Install only what you need.',
+    packagesSectionSubtitle: 'Each package is independent — add the modules your project requires, or grab Vali-Tempo for the full suite.',
+    authorBuiltBy: 'Built by',
+    authorBio: '.NET developer and open-source contributor. Also the author of',
+    seoTitle: 'Vali-Tempo — Time Precision for .NET',
+    seoDesc: 'Modular .NET ecosystem for time, dates, calendars and timezones. 12 NuGet packages covering time conversions, date ranges, workday calendars, durations, schedules, holidays, business hours, time buckets and IANA timezone support for .NET 6, 7, 8, 9 & 10.',
+    workingDay: '✗ working day',
+    holiday: '✓ holiday',
+    overlappingDays: '3 overlapping days',
+    workdays: 'workdays',
+    nextLabel: 'next:',
+    yearsLabel: 'years',
+    daysRemaining: 'd remaining',
+    codeComment: '// Inject what you need',
+    copyAriaLabel: 'Copy code',
+    copyToClipboard: 'Copy to clipboard',
+  },
+  es: {
+    heroBadge: '35+ países · 45+ zonas IANA · .NET 8/9',
+    heroTagline: 'precisión de tiempo para .NET — fechas, calendarios y zonas horarias',
+    heroSubtitle: 'Nueve módulos. Un ecosistema. Precisión temporal.',
+    heroModulesLabel: 'Módulos disponibles',
+    statModules: 'módulos',
+    statCountries: 'países',
+    statSupported: 'compatible',
+    ctaGetStarted: 'Comenzar →',
+    ctaReadDocs: 'Leer la documentación',
+    featuresSectionTitle: 'Todo lo que necesitas para el manejo preciso del tiempo',
+    featuresSectionSubtitle: 'Construido para desarrolladores .NET que necesitan operaciones precisas de fecha, tiempo y zona horaria.',
+    pipelineBadge: 'ecosistema de precisión',
+    pipelineTitle: 'Nueve módulos. Un ecosistema de tiempo.',
+    pipelineSubtitle: 'Nueve paquetes especializados. Úsalos individualmente o todos juntos — se combinan naturalmente.',
+    packagesSectionTitle: '12 paquetes NuGet. Instala solo lo que necesitas.',
+    packagesSectionSubtitle: 'Cada paquete es independiente — agrega los módulos que tu proyecto requiere, o usa Vali-Tempo para la suite completa.',
+    authorBuiltBy: 'Desarrollado por',
+    authorBio: 'Desarrollador .NET y contribuidor de código abierto. También autor de',
+    seoTitle: 'Vali-Tempo — Precisión de Tiempo para .NET',
+    seoDesc: 'Ecosistema modular .NET para tiempo, fechas, calendarios y zonas horarias. 12 paquetes NuGet para conversiones de tiempo, rangos de fechas, calendarios laborales, duraciones, programación, festivos, horario laboral, buckets de series temporales y soporte IANA para .NET 6, 7, 8, 9 y 10.',
+    workingDay: '✗ día laboral',
+    holiday: '✓ festivo',
+    overlappingDays: '3 días solapados',
+    workdays: 'días laborables',
+    nextLabel: 'próximo:',
+    yearsLabel: 'años',
+    daysRemaining: 'd restantes',
+    codeComment: '// Inyecta lo que necesites',
+    copyAriaLabel: 'Copiar código',
+    copyToClipboard: 'Copiar al portapapeles',
+  },
+} as const;
+
+type Locale = keyof typeof TRANSLATIONS;
+function useT() {
+  const { i18n } = useDocusaurusContext();
+  const locale = (i18n.currentLocale === 'es' ? 'es' : 'en') as Locale;
+  return { t: TRANSLATIONS[locale], locale };
+}
 
 // ─── Canvas particle system ───────────────────────────────────────────────────
 
@@ -243,9 +380,17 @@ const CODE_TOKENS: Token[][] = [
 
 function CodeBlock(): ReactNode {
   const [copied, setCopied] = useState(false);
+  const { t } = useT();
+  // Build tokens dynamically so the comment is translated
+  const tokens: Token[][] = [
+    CODE_TOKENS[0],
+    CODE_TOKENS[1],
+    [{ text: t.codeComment, cls: 'cComment' }],
+    ...CODE_TOKENS.slice(3),
+  ];
   const raw = `builder.Services.AddValiTempo();
 
-// Inject what you need
+${t.codeComment}
 public class ScheduleService(
     IValiTime time,
     IValiDate date,
@@ -273,7 +418,7 @@ public class ScheduleService(
               setTimeout(() => setCopied(false), 2000);
             });
           }}
-          aria-label="Copy code"
+          aria-label={t.copyAriaLabel}
         >
           {copied ? (
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -291,13 +436,13 @@ public class ScheduleService(
       {/* Code */}
       <div className={styles.codeBody}>
         <div className={styles.codeLineNumbers}>
-          {CODE_TOKENS.map((_, i) => (
+          {tokens.map((_, i) => (
             <span key={i} className={styles.codeLineNum}>{i + 1}</span>
           ))}
         </div>
         <pre className={styles.codePre}>
           <code>
-            {CODE_TOKENS.map((line, li) => (
+            {tokens.map((line, li) => (
               <div key={li} className={styles.codeLine}>
                 {line.map((tok, ti) => (
                   <span key={ti} className={styles[tok.cls]}>{tok.text}</span>
@@ -318,11 +463,12 @@ public class ScheduleService(
 
 function LiveClockPanel(): ReactNode {
   const [now, setNow] = useState<Date | null>(null);
+  const { t, locale } = useT();
 
   useEffect(() => {
     setNow(new Date());
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
+    const interval = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const sec   = now ? now.getSeconds() : 0;
@@ -334,9 +480,9 @@ function LiveClockPanel(): ReactNode {
   const toRad = (d: number) => d * Math.PI / 180;
   const cx = 100, cy = 100;
 
-  const quarter = now ? `Q${Math.ceil((now.getMonth() + 1) / 3)} ${now.getFullYear()}` : '—';
+  const localeStr = locale === 'es' ? 'es-ES' : 'en-US';
   const timeStr = now
-    ? now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    ? now.toLocaleTimeString(localeStr, { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
     : '--:--:--';
 
   // Next monday
@@ -345,7 +491,7 @@ function LiveClockPanel(): ReactNode {
     const day = d.getDay();
     const diff = day === 1 ? 7 : (8 - day) % 7;
     d.setDate(d.getDate() + diff);
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return d.toLocaleDateString(localeStr, { month: 'short', day: 'numeric' });
   })() : '—';
 
   // Days until next new year
@@ -359,66 +505,66 @@ function LiveClockPanel(): ReactNode {
 
   const API_CARDS = [
     {
-      module: 'ValiTimeZone',
+      module: 'Vali-TimeZone',
       icon: '🌐',
       call: 'Now("America/Lima")',
       result: timeStr,
       live: true,
     },
     {
-      module: 'ValiHoliday',
+      module: 'Vali-Holiday',
       icon: '🌍',
       call: 'IsHoliday(Today, "US")',
-      result: now ? (now.getMonth() === 11 && now.getDate() === 25 ? '✓ holiday' : '✗ working day') : '—',
+      result: now ? (now.getMonth() === 11 && now.getDate() === 25 ? t.holiday : t.workingDay) : '—',
       live: true,
     },
     {
-      module: 'ValiTime',
+      module: 'Vali-Time',
       icon: '⏱',
       call: 'Convert(90, Min, Hours)',
       result: '"1.50 h"',
       live: false,
     },
     {
-      module: 'ValiRange',
+      module: 'Vali-Range',
       icon: '📆',
       call: 'Intersect(rangeA, rangeB)',
-      result: '3 overlapping days',
+      result: t.overlappingDays,
       live: false,
     },
     {
-      module: 'ValiCalendar',
+      module: 'Vali-Calendar',
       icon: '🗓',
       call: 'WorkdaysIn(30d)',
-      result: `~${workdayEst} workdays`,
+      result: `~${workdayEst} ${t.workdays}`,
       live: false,
     },
     {
-      module: 'ValiDuration',
+      module: 'Vali-Duration',
       icon: '⌛',
       call: 'From(TimeSpan.FromHours(2))',
       result: '"2h 0m 0s"',
       live: false,
     },
     {
-      module: 'ValiSchedule',
+      module: 'Vali-Schedule',
       icon: '🔄',
       call: 'Every(1,Week).On(Mon)',
-      result: `next: ${nextMonday}`,
+      result: `${t.nextLabel} ${nextMonday}`,
       live: true,
     },
     {
-      module: 'ValiAge',
+      module: 'Vali-Age',
       icon: '🎂',
       call: 'Years(Jan 15, 1993)',
-      result: `${now ? now.getFullYear() - 1993 : 33} years`,
+      result: `${now ? now.getFullYear() - 1993 : 33} ${t.yearsLabel}`,
       live: true,
     },
     {
-      module: 'ValiCountDown',
+      module: 'Vali-CountDown',
       icon: '⏳',
       call: 'TimeUntil(NewYear)',
-      result: `${daysUntilNY}d remaining`,
+      result: `${daysUntilNY}${t.daysRemaining}`,
       live: true,
     },
   ];
@@ -501,6 +647,7 @@ function LiveClockPanel(): ReactNode {
 // ─── Module Ecosystem Section (premium animated) ──────────────────────────────
 
 function ModuleSection(): ReactNode {
+  const { t } = useT();
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -570,11 +717,11 @@ function ModuleSection(): ReactNode {
         <div ref={headerRef} className={clsx(styles.sectionHeader, styles.pipelineHeader)}>
           <div className={styles.pipelineBadge}>
             <span className={styles.pipelineBadgePulse} />
-            precision ecosystem
+            {t.pipelineBadge}
           </div>
-          <h2 className={styles.sectionTitle}>Nine modules. One time ecosystem.</h2>
+          <h2 className={styles.sectionTitle}>{t.pipelineTitle}</h2>
           <p className={styles.sectionSubtitle}>
-            Nine focused packages. Use one or all — they compose naturally.
+            {t.pipelineSubtitle}
           </p>
         </div>
 
@@ -684,6 +831,7 @@ const MODULES = ['ValiTime', 'ValiDate', 'ValiRange', 'ValiCalendar', 'ValiDurat
 
 function Hero(): ReactNode {
   const [copied, setCopied] = useState(false);
+  const { t } = useT();
   const installCmd = 'dotnet add package Vali-Tempo';
   return (
     <section className={styles.hero}>
@@ -701,7 +849,7 @@ function Hero(): ReactNode {
         <div className={styles.heroBadge}>
           <span className={styles.heroBadgePulse} />
           <span className={styles.heroBadgeDot} />
-          35+ countries · 45+ IANA zones · .NET 8/9
+          {t.heroBadge}
         </div>
 
         {/* Title */}
@@ -710,13 +858,13 @@ function Hero(): ReactNode {
         {/* Tagline */}
         <p className={styles.heroTagline}>
           <span className={styles.heroTaglineComment}>{'// '}</span>
-          time precision for .NET — dates, calendars & timezones
+          {t.heroTagline}
         </p>
 
-        <p className={styles.heroSubtitle}>Nine modules. One ecosystem. Precision time.</p>
+        <p className={styles.heroSubtitle}>{t.heroSubtitle}</p>
 
         {/* Module pills marquee */}
-        <div className={styles.heroProviders} aria-label="Available modules">
+        <div className={styles.heroProviders} aria-label={t.heroModulesLabel}>
           <div className={styles.heroProvidersTrack}>
             {[...MODULES, ...MODULES].map((m, i) => (
               <span key={i} className={styles.providerPill}>{m}</span>
@@ -728,24 +876,24 @@ function Hero(): ReactNode {
         <div className={styles.heroStats}>
           <div className={styles.heroStat}>
             <span className={styles.heroStatValue}>9</span>
-            <span className={styles.heroStatLabel}>modules</span>
+            <span className={styles.heroStatLabel}>{t.statModules}</span>
           </div>
           <div className={styles.heroStatDivider} aria-hidden="true" />
           <div className={styles.heroStat}>
             <span className={styles.heroStatValue}>35+</span>
-            <span className={styles.heroStatLabel}>countries</span>
+            <span className={styles.heroStatLabel}>{t.statCountries}</span>
           </div>
           <div className={styles.heroStatDivider} aria-hidden="true" />
           <div className={styles.heroStat}>
             <span className={styles.heroStatValue}>.NET 8/9</span>
-            <span className={styles.heroStatLabel}>supported</span>
+            <span className={styles.heroStatLabel}>{t.statSupported}</span>
           </div>
         </div>
 
         {/* CTA buttons */}
         <div className={styles.heroCta}>
-          <Link className={clsx('button', styles.btnPrimary)} to="/docs/quick-start">Get started →</Link>
-          <Link className={clsx('button', styles.btnSecondary)} to="/docs/introduction">Read the docs</Link>
+          <Link className={clsx('button', styles.btnPrimary)} to="/docs/quick-start">{t.ctaGetStarted}</Link>
+          <Link className={clsx('button', styles.btnSecondary)} to="/docs/introduction">{t.ctaReadDocs}</Link>
         </div>
 
         {/* Install block */}
@@ -761,7 +909,7 @@ function Hero(): ReactNode {
                   setTimeout(() => setCopied(false), 2000);
                 });
               }}
-              aria-label="Copy"
+              aria-label={t.copyToClipboard}
             >
               {copied
                 ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
@@ -778,15 +926,16 @@ function Hero(): ReactNode {
 // ─── Features section ─────────────────────────────────────────────────────────
 
 function FeaturesSection(): ReactNode {
+  const { t, locale } = useT();
   return (
     <section className={styles.featuresSection}>
       <div className="container">
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Everything you need for precise time handling</h2>
-          <p className={styles.sectionSubtitle}>Built for .NET developers who need accurate date, time, and timezone operations.</p>
+          <h2 className={styles.sectionTitle}>{t.featuresSectionTitle}</h2>
+          <p className={styles.sectionSubtitle}>{t.featuresSectionSubtitle}</p>
         </div>
         <div className={styles.featuresGrid}>
-          {FEATURES.map((f, i) => <FeatureCard key={f.title} {...f} index={i} />)}
+          {(locale === 'es' ? FEATURES_ES : FEATURES).map((f, i) => <FeatureCard key={f.title} {...f} index={i} />)}
         </div>
       </div>
     </section>
@@ -796,16 +945,17 @@ function FeaturesSection(): ReactNode {
 // ─── Packages section ─────────────────────────────────────────────────────────
 
 function PackagesSection(): ReactNode {
+  const { t, locale } = useT();
   return (
     <section className={styles.packagesSection}>
       <div className={styles.packagesDivider} aria-hidden="true" />
       <div className="container">
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>10 NuGet packages. Install only what you need.</h2>
-          <p className={styles.sectionSubtitle}>Each package is independent — add the modules your project requires, or grab Vali-Tempo for the full suite.</p>
+          <h2 className={styles.sectionTitle}>{t.packagesSectionTitle}</h2>
+          <p className={styles.sectionSubtitle}>{t.packagesSectionSubtitle}</p>
         </div>
         <div className={styles.packagesGrid}>
-          {PACKAGES.map((p) => <PackageCard key={p.name} {...p} />)}
+          {(locale === 'es' ? PACKAGES_ES : PACKAGES).map((p) => <PackageCard key={p.name} {...p} />)}
         </div>
       </div>
     </section>
@@ -815,6 +965,7 @@ function PackagesSection(): ReactNode {
 // ─── Author section ───────────────────────────────────────────────────────────
 
 function AuthorSection(): ReactNode {
+  const { t } = useT();
   return (
     <section className={styles.authorSection}>
       <div className={styles.authorDivider} aria-hidden="true" />
@@ -827,9 +978,9 @@ function AuthorSection(): ReactNode {
             </div>
           </div>
           <div className={styles.authorInfo}>
-            <p className={styles.authorBuiltBy}>Built by</p>
+            <p className={styles.authorBuiltBy}>{t.authorBuiltBy}</p>
             <a href="https://github.com/UBF21" target="_blank" rel="noopener noreferrer" className={styles.authorName}>Felipe Montenegro</a>
-            <p className={styles.authorBio}>.NET developer and open-source contributor. Also the author of{' '}<a href="https://github.com/UBF21/Vali-Blob" target="_blank" rel="noopener noreferrer" className={styles.authorLink}>Vali-Blob</a>.</p>
+            <p className={styles.authorBio}>{t.authorBio}{' '}<a href="https://github.com/UBF21/Vali-Blob" target="_blank" rel="noopener noreferrer" className={styles.authorLink}>Vali-Blob</a>.</p>
           </div>
           <div className={styles.authorLinks}>
             <a href="https://github.com/UBF21" target="_blank" rel="noopener noreferrer" className={clsx(styles.authorSocialLink, styles.authorSocialLinkGithub)}>
@@ -849,19 +1000,19 @@ function AuthorSection(): ReactNode {
 
 // ─── Page root ────────────────────────────────────────────────────────────────
 
-const SEO_TITLE = 'Vali-Tempo — Time Precision for .NET';
-const SEO_DESC  = 'Modular .NET ecosystem for time, dates, calendars and timezones. 10 NuGet packages covering time conversions, date ranges, workday calendars, durations, schedules, holidays and IANA timezone support for .NET 6, 7, 8 & 9.';
+const SEO_DESC  = 'Modular .NET ecosystem for time, dates, calendars and timezones. 12 NuGet packages covering time conversions, date ranges, workday calendars, durations, schedules, holidays, business hours, time buckets and IANA timezone support for .NET 6, 7, 8, 9 & 10.';
 const SEO_URL   = 'https://vali-tempo.github.io';
 const SEO_IMAGE = `${SEO_URL}/img/docusaurus-social-card.jpg`;
 
 export default function Home(): ReactNode {
   const { siteConfig } = useDocusaurusContext();
+  const { t } = useT();
   return (
     <>
       <Head>
         {/* Primary */}
-        <title>{SEO_TITLE}</title>
-        <meta name="description" content={SEO_DESC} />
+        <title>{t.seoTitle}</title>
+        <meta name="description" content={t.seoDesc} />
         <meta name="robots" content="index, follow" />
         <meta name="theme-color" content="#7C3AED" />
         <link rel="canonical" href={SEO_URL} />
@@ -869,8 +1020,8 @@ export default function Home(): ReactNode {
         {/* Open Graph */}
         <meta property="og:type"        content="website" />
         <meta property="og:url"         content={SEO_URL} />
-        <meta property="og:title"       content={SEO_TITLE} />
-        <meta property="og:description" content={SEO_DESC} />
+        <meta property="og:title"       content={t.seoTitle} />
+        <meta property="og:description" content={t.seoDesc} />
         <meta property="og:image"       content={SEO_IMAGE} />
         <meta property="og:image:width"  content="1200" />
         <meta property="og:image:height" content="630" />
@@ -880,8 +1031,8 @@ export default function Home(): ReactNode {
 
         {/* Twitter / X */}
         <meta name="twitter:card"        content="summary_large_image" />
-        <meta name="twitter:title"       content={SEO_TITLE} />
-        <meta name="twitter:description" content={SEO_DESC} />
+        <meta name="twitter:title"       content={t.seoTitle} />
+        <meta name="twitter:description" content={t.seoDesc} />
         <meta name="twitter:image"       content={SEO_IMAGE} />
 
         {/* hreflang i18n */}
@@ -897,7 +1048,7 @@ export default function Home(): ReactNode {
           "description": SEO_DESC,
           "url": SEO_URL,
           "applicationCategory": "DeveloperApplication",
-          "operatingSystem": ".NET 6, .NET 7, .NET 8, .NET 9",
+          "operatingSystem": ".NET 6, .NET 7, .NET 8, .NET 9, .NET 10",
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
           "author": {
             "@type": "Organization",
@@ -907,7 +1058,7 @@ export default function Home(): ReactNode {
         })}</script>
       </Head>
 
-      <Layout title={siteConfig.title} description={SEO_DESC}>
+      <Layout title={siteConfig.title} description={t.seoDesc}>
         <Hero />
         <main>
           <FeaturesSection />

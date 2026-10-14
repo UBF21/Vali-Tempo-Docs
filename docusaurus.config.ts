@@ -41,6 +41,8 @@ const config: Config = {
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
 
+  trailingSlash: false,
+
   stylesheets: [
     {
       href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;500&display=swap',
@@ -71,11 +73,28 @@ const config: Config = {
         },
         blog: false,
         theme: { customCss: './src/css/custom.css' },
+        sitemap: {
+          changefreq: 'weekly',
+          priority: 0.5,
+          ignorePatterns: ['/tags/**'],
+          filename: 'sitemap.xml',
+        },
       } satisfies Preset.Options,
     ],
   ],
 
   themeConfig: {
+    image: 'img/logo.png',
+    metadata: [
+      { name: 'robots', content: 'index, follow' },
+      { name: 'theme-color', content: '#7C3AED' },
+      { name: 'keywords', content: '.NET, NuGet, C#, time library, date handling, calendar, timezone, duration, scheduling, holidays, business hours, time buckets, .NET 6, .NET 7, .NET 8, .NET 9, .NET 10, Vali-Tempo' },
+      { name: 'author', content: 'Felipe Montenegro' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:site_name', content: 'Vali-Tempo' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:site', content: '@vali_tempo' },
+    ],
     colorMode: { defaultMode: 'dark', respectPrefersColorScheme: true },
     navbar: {
       title: 'Vali-Tempo',
@@ -119,9 +138,13 @@ const config: Config = {
             { label: 'Vali-Range', href: 'https://www.nuget.org/packages/Vali-Range' },
             { label: 'Vali-Calendar', href: 'https://www.nuget.org/packages/Vali-Calendar' },
             { label: 'Vali-Duration', href: 'https://www.nuget.org/packages/Vali-Duration' },
+            { label: 'Vali-CountDown', href: 'https://www.nuget.org/packages/Vali-CountDown' },
+            { label: 'Vali-Age', href: 'https://www.nuget.org/packages/Vali-Age' },
             { label: 'Vali-Schedule', href: 'https://www.nuget.org/packages/Vali-Schedule' },
             { label: 'Vali-Holiday', href: 'https://www.nuget.org/packages/Vali-Holiday' },
             { label: 'Vali-TimeZone', href: 'https://www.nuget.org/packages/Vali-TimeZone' },
+            { label: 'Vali-BusinessHours', href: 'https://www.nuget.org/packages/Vali-BusinessHours' },
+            { label: 'Vali-Bucket', href: 'https://www.nuget.org/packages/Vali-Bucket' },
             { label: 'Vali-Tempo', href: 'https://www.nuget.org/packages/Vali-Tempo' },
           ],
         },

@@ -3,6 +3,8 @@ id: quick-start
 title: Quick Start
 sidebar_label: Quick Start
 slug: /quick-start
+description: Get started with Vali-Tempo in under five minutes. Install via NuGet and register all modules with a single dependency-injection call in .NET 6, 7, 8, 9 or 10.
+keywords: [Vali-Tempo, quick start, NuGet install, dependency injection, .NET, C#]
 ---
 
 # Quick Start
@@ -29,6 +31,8 @@ dotnet add package Vali-Age
 dotnet add package Vali-Schedule
 dotnet add package Vali-Holiday
 dotnet add package Vali-TimeZone
+dotnet add package Vali-BusinessHours
+dotnet add package Vali-Bucket
 ```
 
 ## 2. Register services
@@ -40,7 +44,7 @@ using ValiTempo.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register all 9 Vali-Tempo services as singletons
+// Register all 11 Vali-Tempo services as singletons
 builder.Services.AddValiTempo();
 
 var app = builder.Build();
@@ -134,7 +138,7 @@ public class CalendarService(IValiHoliday holiday, IValiCalendar calendar)
 
     public bool IsWorkday(string country, DateTime date)
     {
-        return !holiday.IsHoliday(country, date)
+        return !holiday.IsHoliday(date, country)
             && calendar.IsWorkday(date);
     }
 
@@ -178,7 +182,7 @@ If you only installed `Vali-Age`, you can register it directly:
 builder.Services.AddValiAge();
 ```
 
-Each module ships its own extension method: `AddValiTime()`, `AddValiRange()`, `AddValiCalendar()`, `AddValiDuration()`, `AddValiCountDown()`, `AddValiAge()`, `AddValiSchedule()`, `AddValiHoliday()`, `AddValiTimeZone()`.
+Each module ships its own extension method: `AddValiTime()`, `AddValiRange()`, `AddValiCalendar()`, `AddValiDuration()`, `AddValiCountdown()`, `AddValiAge()`, `AddValiSchedule()`, `AddValiHoliday()`, `AddValiTimeZone()`, `AddValiBusinessHours()`, `AddValiBucket()`.
 
 ## 5. Testing
 
@@ -198,4 +202,4 @@ service.DisplayAge(new DateTime(1993, 5, 10));
 - [Vali-Date](./vali-time/vali-date) — diff, add, subtract, quarters, weeks
 - [Vali-Holiday Providers](./vali-holiday/providers) — register 35+ country holiday providers
 - [Vali-Schedule](./vali-schedule/overview) — build recurring schedules fluently
-- [Packages Reference](./packages) — all 10 NuGet packages
+- [Packages Reference](./packages) — all 12 NuGet packages
