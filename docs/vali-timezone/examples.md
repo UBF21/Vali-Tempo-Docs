@@ -46,8 +46,8 @@ Console.WriteLine($"Tokyo: {tokyoTime:yyyy-MM-dd HH:mm} (UTC+9)");
 // → Lima:  2025-07-15 10:00 (UTC-5)
 // → Tokyo: 2025-07-16 00:00 (UTC+9)
 
-TimeSpan diff = tz.OffsetDiff("America/Lima", "Asia/Tokyo", DateTime.UtcNow);
-Console.WriteLine($"Offset difference: {diff.TotalHours:F0} hours");
+decimal diff = tz.OffsetDiff("America/Lima", "Asia/Tokyo", DateTime.UtcNow);
+Console.WriteLine($"Offset difference: {diff:F0} hours");
 // → Offset difference: 14 hours
 ```
 
@@ -69,9 +69,9 @@ var tz = new ValiTimeZone();
 var summerDate = new DateTime(2025, 7, 4);
 var winterDate = new DateTime(2025, 1, 4);
 
-bool dstSummer = tz.IsDst("America/New_York", summerDate);
-bool dstWinter = tz.IsDst("America/New_York", winterDate);
-bool dstLima   = tz.IsDst("America/Lima", DateTime.Now);
+bool dstSummer = tz.IsDst(summerDate, "America/New_York");
+bool dstWinter = tz.IsDst(winterDate, "America/New_York");
+bool dstLima   = tz.IsDst(DateTime.Now, "America/Lima");
 
 Console.WriteLine($"New York on {summerDate:MMM dd}: DST active = {dstSummer}");
 // → New York on Jul 04: DST active = True  (EDT, UTC-4)
@@ -101,17 +101,17 @@ var tz = new ValiTimeZone();
 // Compare several zone pairs at the same UTC instant
 var utcNow = DateTime.UtcNow;
 
-TimeSpan limaToTokyo   = tz.OffsetDiff("America/Lima",    "Asia/Tokyo",      utcNow);
-TimeSpan limaToMadrid  = tz.OffsetDiff("America/Lima",    "Europe/Madrid",   utcNow);
-TimeSpan nyToSaoPaulo  = tz.OffsetDiff("America/New_York","America/Sao_Paulo", utcNow);
+decimal limaToTokyo   = tz.OffsetDiff("America/Lima",    "Asia/Tokyo",      utcNow);
+decimal limaToMadrid  = tz.OffsetDiff("America/Lima",    "Europe/Madrid",   utcNow);
+decimal nyToSaoPaulo  = tz.OffsetDiff("America/New_York","America/Sao_Paulo", utcNow);
 
-Console.WriteLine($"Lima   → Tokyo:     {limaToTokyo.TotalHours:+0;-0} hours");
+Console.WriteLine($"Lima   → Tokyo:     {limaToTokyo:+0;-0} hours");
 // → Lima   → Tokyo:     +14 hours
 
-Console.WriteLine($"Lima   → Madrid:    {limaToMadrid.TotalHours:+0;-0} hours");
+Console.WriteLine($"Lima   → Madrid:    {limaToMadrid:+0;-0} hours");
 // → Lima   → Madrid:    +6 hours  (Madrid UTC+1, Lima UTC-5)
 
-Console.WriteLine($"New York → São Paulo: {nyToSaoPaulo.TotalHours:+0;-0} hours");
+Console.WriteLine($"New York → São Paulo: {nyToSaoPaulo:+0;-0} hours");
 // → New York → São Paulo: +1 hours  (Sao Paulo UTC-3, New York UTC-4 in summer)
 ```
 

@@ -11,10 +11,18 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic V
 
 ---
 
+## [1.1.0] — 2026-10-14
+
+### Changed
+- `ValiZoneInfo` is now a `sealed record` (previously a `sealed class`) — adds structural equality; `ToString()` format is unchanged.
+- Added the `net10.0` target framework. Still pins `Vali-Time` at `1.0.1` — doesn't need any of its new 1.1.0 members.
+
+---
+
 ## [1.0.0] — 2025-07-01
 
 ### Added
-- `ValiZoneInfo` model with `Id`, `DisplayName`, `Country`, `StandardOffset`, `CurrentOffset`, `SupportsDst`, and `BaseUtcOffset` properties.
+- `ValiZoneInfo` model with `Id`, `DisplayName`, `StandardName`, `BaseOffset`, `SupportsDst`, `CountryCode`, and `CountryName` properties.
 - 45+ curated IANA timezone entries covering Latin America, North America, Europe, Asia, Oceania, and Africa.
 - `ValiTimeZone` with conversion methods: `Convert`, `ConvertOffset`, `ToUtc`, `FromUtc`, `ToDateTimeOffset`.
 - Offset queries: `GetOffset`, `GetBaseOffset`, `OffsetDiff`.
