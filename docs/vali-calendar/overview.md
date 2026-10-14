@@ -2,11 +2,13 @@
 id: overview
 title: Vali-Calendar Overview
 sidebar_label: Overview
+description: Vali-Calendar provides workday calendar operations for .NET — calculate business days, skip weekends and holidays, and navigate calendar months.
+keywords: [Vali-Calendar, business days, workday, .NET, NuGet, C#, calendar operations]
 ---
 
 # Vali-Calendar
 
-`IValiCalendar` is a workday-aware calendar engine that supports pluggable holiday providers. It can calculate workdays between dates, add business days, detect month/week boundaries, and enumerate days of a month.
+`IValiCalendar` is a workday-aware calendar engine that supports a pluggable `IHolidayProvider`. It can calculate workdays between dates, add business days, detect month/week boundaries, and enumerate days of a month.
 
 ## Installation
 
@@ -14,12 +16,20 @@ sidebar_label: Overview
 dotnet add package Vali-Calendar
 ```
 
+Compiled targets: `net8.0` · `net9.0` · `net10.0`. Compatible with .NET 6 and .NET 7 via NuGet backward compatibility.
+
 ## Registration
 
 ```csharp
 builder.Services.AddValiCalendar();
 // or via the meta-package:
 builder.Services.AddValiTempo();
+```
+
+To exclude public holidays from workday logic, register with an `IHolidayProvider` (a single, already-country-scoped provider — see [Holiday Integration](#holiday-integration) below):
+
+```csharp
+builder.Services.AddValiCalendar(myHolidayProvider);
 ```
 
 ## CalendarWeek Struct
@@ -30,8 +40,8 @@ builder.Services.AddValiTempo();
 |---|---|---|
 | `Year` | `int` | Year the week belongs to |
 | `WeekNumber` | `int` | ISO week number (1–53) |
-| `Start` | `DateTime` | Monday of the week |
-| `End` | `DateTime` | Sunday of the week |
+| `Start` | `DateTime` | First day of the week |
+| `End` | `DateTime` | Last day of the week |
 | `Days` | `IEnumerable<DateTime>` | All 7 days of the week |
 
 ## IValiCalendar API
@@ -43,11 +53,13 @@ Get the `CalendarWeek` that contains a given date:
 ```csharp
 CalendarWeek week = calendar.WeekOf(new DateTime(2025, 3, 15));
 Console.WriteLine(week.WeekNumber); // → ISO week number
-Console.WriteLine(week.Start);      // → Monday of that week
-Console.WriteLine(week.End);        // → Sunday of that week
+Console.WriteLine(week.Start);      // → first day of that week
+Console.WriteLine(week.End);        // → last day of that week
 ```
 
-**Signature:** `CalendarWeek WeekOf(DateTime date)`
+**Signature:** `CalendarWeek WeekOf(DateTime date, WeekStart? weekStart = null)`
+
+`weekStart` overrides the instance default (`WeekStart.Monday` or `WeekStart.Sunday`) for this call only.
 
 ### CurrentWeek
 
@@ -57,29 +69,29 @@ Get the `CalendarWeek` for the current date:
 CalendarWeek thisWeek = calendar.CurrentWeek();
 ```
 
-**Signature:** `CalendarWeek CurrentWeek()`
+**Signature:** `CalendarWeek CurrentWeek(WeekStart? weekStart = null)`
 
 ### WeeksInMonth
 
-Get all calendar weeks that overlap with the month of the given date:
+Get all calendar weeks that overlap with a given month:
 
 ```csharp
-IEnumerable<CalendarWeek> weeks = calendar.WeeksInMonth(new DateTime(2025, 3, 1));
+IEnumerable<CalendarWeek> weeks = calendar.WeeksInMonth(2025, 3);
 // → All weeks overlapping March 2025
 ```
 
-**Signature:** `IEnumerable<CalendarWeek> WeeksInMonth(DateTime date)`
+**Signature:** `IEnumerable<CalendarWeek> WeeksInMonth(int year, int month, WeekStart? weekStart = null)`
 
 ### WeekCountInMonth
 
-Return the number of (partial or full) calendar weeks in the month of the given date:
+Return the number of (partial or full) calendar weeks in a given month:
 
 ```csharp
-int count = calendar.WeekCountInMonth(new DateTime(2025, 3, 1));
+int count = calendar.WeekCountInMonth(2025, 3);
 // → 5 (March 2025 spans 5 weeks)
 ```
 
-**Signature:** `int WeekCountInMonth(DateTime date)`
+**Signature:** `int WeekCountInMonth(int year, int month, WeekStart? weekStart = null)`
 
 ### IsFirstDayOfMonth
 
@@ -116,181 +128,202 @@ int days = calendar.DaysInMonth(new DateTime(2024, 2, 10));
 
 ### DaysOfMonth
 
-Enumerate all calendar days in the month of the given date:
+Enumerate all calendar days in a given month:
 
 ```csharp
-IEnumerable<DateTime> days = calendar.DaysOfMonth(new DateTime(2025, 3, 1));
+IEnumerable<DateTime> days = calendar.DaysOfMonth(2025, 3);
 foreach (var day in days)
     Console.WriteLine(day.ToString("dd ddd"));
 ```
 
-**Signature:** `IEnumerable<DateTime> DaysOfMonth(DateTime date)`
+**Signature:** `IEnumerable<DateTime> DaysOfMonth(int year, int month)`
 
 ### IsWorkday
 
-Return `true` if the date is a workday (Monday–Friday and not a registered holiday):
+Return `true` if the date is a workday — a weekday (Monday–Friday) that is not a public holiday when an `IHolidayProvider` is configured on the instance:
 
 ```csharp
 bool isWork = calendar.IsWorkday(new DateTime(2025, 12, 25));
-// → depends on registered holidays
+// → false if the instance has a holiday provider that marks Dec 25 as a holiday,
+//   otherwise true/false based on weekday only
 ```
 
-Optionally pass a country code to check against that country's holidays:
+**Signature:** `bool IsWorkday(DateTime date)`
 
-```csharp
-bool isWork = calendar.IsWorkday(new DateTime(2025, 12, 25), "PE");
-```
-
-**Signature:** `bool IsWorkday(DateTime date, string? country = null)`
+The holiday provider is not passed per call — it is bound once, at construction (see [Holiday Integration](#holiday-integration)). A `ValiCalendar` instance is therefore scoped to at most one holiday provider (one country) at a time.
 
 ### WorkdaysBetween
 
-Count the number of workdays between two dates (exclusive of the end date):
+Count the number of workdays between two dates, **inclusive of both endpoints**:
 
 ```csharp
 int workdays = calendar.WorkdaysBetween(
     new DateTime(2025, 3, 3),  // Monday
-    new DateTime(2025, 3, 14), // Friday
-    "US");
+    new DateTime(2025, 3, 14)); // Friday
 // → 10 (two weeks of Mon–Fri)
 ```
 
-**Signature:** `int WorkdaysBetween(DateTime from, DateTime to, string? country = null)`
+**Signature:** `int WorkdaysBetween(DateTime from, DateTime to)`
+
+Throws `ArgumentException` if `from` is after `to`, and `InvalidOperationException` if the span exceeds the internal 10-year scan limit.
 
 ### AddWorkdays
 
-Add a number of business days to a date, skipping weekends and holidays:
+Add a number of business days to a date, skipping weekends (and holidays when a provider is configured). Negative values move backward:
 
 ```csharp
-DateTime result = calendar.AddWorkdays(new DateTime(2025, 3, 28), 5, "PE");
-// → Moves 5 workdays forward, skipping weekends and Peruvian holidays
+DateTime result = calendar.AddWorkdays(new DateTime(2025, 3, 28), 5);
+// → Moves 5 workdays forward, skipping weekends (and holidays if configured)
 ```
 
-**Signature:** `DateTime AddWorkdays(DateTime date, int count, string? country = null)`
+**Signature:** `DateTime AddWorkdays(DateTime date, int workdays)`
 
 ### WorkdaysInMonth
 
-Return the count of workdays in the month of the given date:
+Return the count of workdays in a given month:
 
 ```csharp
-int count = calendar.WorkdaysInMonth(new DateTime(2025, 3, 1), "US");
-// → ~21 (March 2025 has 21 workdays in the US)
+int count = calendar.WorkdaysInMonth(2025, 3);
+// → 21 (March 2025)
 ```
 
-**Signature:** `int WorkdaysInMonth(DateTime date, string? country = null)`
+**Signature:** `int WorkdaysInMonth(int year, int month)`
 
 ### WorkdaysInYear
 
-Return the count of workdays in the year of the given date:
+Return the total count of workdays in a given year:
 
 ```csharp
-int count = calendar.WorkdaysInYear(new DateTime(2025, 1, 1), "US");
-// → ~261
+int count = calendar.WorkdaysInYear(2025);
+// → 261
 ```
 
-**Signature:** `int WorkdaysInYear(DateTime date, string? country = null)`
+**Signature:** `int WorkdaysInYear(int year)`
 
 ### NextWorkday
 
-Return the next workday after the given date:
+Return the next workday on or after the given date. If the date is already a workday, it is returned as-is:
 
 ```csharp
 DateTime next = calendar.NextWorkday(new DateTime(2025, 3, 28)); // Friday
-// → 2025-03-31 (Monday)
+// → 2025-03-28 (already a workday)
 ```
 
-**Signature:** `DateTime NextWorkday(DateTime date, string? country = null)`
+**Signature:** `DateTime NextWorkday(DateTime date)`
 
 ### PreviousWorkday
 
-Return the workday immediately before the given date:
+Return the most recent workday on or before the given date. If the date is already a workday, it is returned as-is:
 
 ```csharp
 DateTime prev = calendar.PreviousWorkday(new DateTime(2025, 3, 31)); // Monday
-// → 2025-03-28 (Friday)
+// → 2025-03-31 (already a workday)
 ```
 
-**Signature:** `DateTime PreviousWorkday(DateTime date, string? country = null)`
+**Signature:** `DateTime PreviousWorkday(DateTime date)`
 
 ### HasHolidayProvider
 
-Return `true` if a holiday provider is registered for the given country code:
+Returns `true` if this instance has an `IHolidayProvider` configured. It is a read-only property, not a method:
 
 ```csharp
-bool has = calendar.HasHolidayProvider("PE");
+bool has = calendar.HasHolidayProvider;
 ```
 
-**Signature:** `bool HasHolidayProvider(string country)`
+**Signature:** `bool HasHolidayProvider { get; }`
 
 ### HolidaysInMonth
 
-Return all registered holidays in the month of the given date for a country:
+Return all public holidays in a given month, using the configured holiday provider:
 
 ```csharp
-IEnumerable<HolidayInfo> holidays = calendar.HolidaysInMonth(new DateTime(2025, 12, 1), "PE");
+IEnumerable<HolidayInfo> holidays = calendar.HolidaysInMonth(2025, 12);
 ```
 
-**Signature:** `IEnumerable<HolidayInfo> HolidaysInMonth(DateTime date, string country)`
+**Signature:** `IEnumerable<HolidayInfo> HolidaysInMonth(int year, int month)`
+
+Throws `InvalidOperationException` if no `IHolidayProvider` was passed to the constructor.
 
 ### HolidaysInYear
 
-Return all registered holidays in the year of the given date for a country:
+Return all public holidays in a given year, using the configured holiday provider:
 
 ```csharp
-IEnumerable<HolidayInfo> holidays = calendar.HolidaysInYear(new DateTime(2025, 1, 1), "US");
+IEnumerable<HolidayInfo> holidays = calendar.HolidaysInYear(2025);
 ```
 
-**Signature:** `IEnumerable<HolidayInfo> HolidaysInYear(DateTime date, string country)`
+**Signature:** `IEnumerable<HolidayInfo> HolidaysInYear(int year)`
+
+Throws `InvalidOperationException` if no `IHolidayProvider` was passed to the constructor.
 
 ### IsLeapYear
 
-Return `true` if the year of the given date is a leap year:
+Return `true` if the given year is a leap year:
 
 ```csharp
-bool leap = calendar.IsLeapYear(new DateTime(2024, 1, 1));
+bool leap = calendar.IsLeapYear(2024);
 // → true
 ```
 
-**Signature:** `bool IsLeapYear(DateTime date)`
+**Signature:** `bool IsLeapYear(int year)`
 
 ### DaysInYear
 
-Return the number of days in the year of the given date (365 or 366):
+Return the number of days in the given year (365 or 366):
 
 ```csharp
-int days = calendar.DaysInYear(new DateTime(2024, 6, 1));
+int days = calendar.DaysInYear(2024);
 // → 366
 ```
 
-**Signature:** `int DaysInYear(DateTime date)`
+**Signature:** `int DaysInYear(int year)`
+
+## Holiday Integration
+
+`ValiCalendar` takes an optional `IHolidayProvider` in its constructor — a **single-country** provider (e.g. one obtained from [Vali-Holiday](../vali-holiday/overview.md) via `IValiHoliday.For(countryCode)`), not the multi-country `IValiHoliday` facade itself:
+
+```csharp
+using Vali_Calendar.Core;
+using Vali_Holiday.Core;
+
+IValiHoliday holidayFacade = HolidayProviderFactory.CreateLatinAmerica();
+IHolidayProvider peruProvider = holidayFacade.For("PE");
+
+var calendar = new ValiCalendar(WeekStart.Monday, peruProvider);
+```
+
+Each `ValiCalendar` instance is bound to one holiday provider. If you need workday logic for several countries, create one `ValiCalendar` per country.
 
 ## Complete Example
 
 ```csharp
-public class HRCalendar(IValiCalendar calendar, IValiHoliday holiday)
-{
-    public void Setup()
-    {
-        // Register holiday providers
-        foreach (var p in HolidayProviderFactory.CreateLatinAmerica())
-            holiday.Register(p);
-    }
+using Vali_Calendar.Core;
+using Vali_Holiday.Core;
 
-    public void PrintMonthSummary(DateTime date, string country)
+public class HRCalendarFactory(IValiHoliday holiday)
+{
+    // One ValiCalendar instance per country — the holiday provider is bound at construction
+    public IValiCalendar ForCountry(string countryCode)
+        => new ValiCalendar(WeekStart.Monday, holiday.For(countryCode));
+}
+
+public class HRCalendarReports
+{
+    public void PrintMonthSummary(IValiCalendar calendar, int year, int month)
     {
-        Console.WriteLine($"Days in month:     {calendar.DaysInMonth(date)}");
-        Console.WriteLine($"Workdays in month: {calendar.WorkdaysInMonth(date, country)}");
-        Console.WriteLine($"Weeks in month:    {calendar.WeekCountInMonth(date)}");
+        Console.WriteLine($"Days in month:     {calendar.DaysInMonth(new DateTime(year, month, 1))}");
+        Console.WriteLine($"Workdays in month: {calendar.WorkdaysInMonth(year, month)}");
+        Console.WriteLine($"Weeks in month:    {calendar.WeekCountInMonth(year, month)}");
 
         Console.WriteLine("Holidays this month:");
-        foreach (var h in calendar.HolidaysInMonth(date, country))
-            Console.WriteLine($"  {h.Date:MMM dd} — {h.Name}");
+        foreach (var h in calendar.HolidaysInMonth(year, month))
+            Console.WriteLine($"  {h.Month:D2}-{h.Day:D2} — {h.Name}");
     }
 
-    public DateTime ComputePaymentDate(DateTime issueDate, string country)
+    public DateTime ComputePaymentDate(IValiCalendar calendar, DateTime issueDate)
     {
         // Payment due 5 business days after invoice date
-        return calendar.AddWorkdays(issueDate, 5, country);
+        return calendar.AddWorkdays(issueDate, 5);
     }
 }
 ```

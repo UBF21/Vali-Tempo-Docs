@@ -11,6 +11,13 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic V
 
 ---
 
+## [1.0.1]
+
+### Changed
+- Added `net10.0` target. Still pins `Vali-Time` at 1.0.1 and `Vali-Holiday` at 1.0.0 — doesn't need any of their new members (no public API change).
+
+---
+
 ## [1.0.0] — 2025-07-01
 
 ### Added
