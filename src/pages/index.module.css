@@ -541,8 +541,8 @@
 }
 
 .featureIconGlyph {
-  font-size: 1.25rem;
-  line-height: 1;
+  color: #A78BFA;
+  flex-shrink: 0;
 }
 
 .featureTitle {
@@ -746,8 +746,8 @@
 }
 
 .apiCardIcon {
-  font-size: 0.8rem;
-  line-height: 1;
+  color: #A78BFA;
+  flex-shrink: 0;
 }
 
 .apiCardModule {

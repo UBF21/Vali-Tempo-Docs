@@ -5,128 +5,169 @@ import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import Head from '@docusaurus/Head';
+import type { LucideIcon } from 'lucide-react';
+import {
+  Timer, CalendarDays, CalendarRange, CalendarCheck2, Hourglass, AlarmClock,
+  Cake, Repeat, Flag, Globe, Building2, Boxes,
+} from 'lucide-react';
 
 import styles from './index.module.css';
 
 // ─── Feature data ────────────────────────────────────────────────────────────
 
 interface Feature {
-  icon: string;
+  icon: LucideIcon;
   title: string;
   description: string;
 }
 
 const FEATURES: Feature[] = [
   {
-    icon: '⏱',
+    icon: Timer,
     title: 'Vali-Time',
     description:
       'High-precision time unit conversions with decimal accuracy. Convert between milliseconds, seconds, minutes, hours, days and more. Format, clamp, compare and break down durations.',
   },
   {
-    icon: '📅',
+    icon: CalendarDays,
     title: 'Vali-Date',
     description:
       'Full date arithmetic — diff, add, subtract, startOf, endOf, isWeekend, isLeapYear, weekOfYear, dayOfYear, progress in year/month and quarter operations.',
   },
   {
-    icon: '📆',
+    icon: CalendarRange,
     title: 'Vali-Range',
     description:
       'Expressive date range operations: union, intersection, gaps, split by day/week/month/quarter. Enumerate workdays, expand, shrink, shift and merge ranges fluently.',
   },
   {
-    icon: '🗓',
+    icon: CalendarCheck2,
     title: 'Vali-Calendar',
     description:
       'Workday calendar with pluggable holiday provider support. Calculate workdays between dates, add workdays, query weeks and months, and detect first/last day boundaries.',
   },
   {
-    icon: '⏳',
+    icon: Hourglass,
     title: 'Vali-Duration',
     description:
       'High-precision decimal Duration value type. Factory methods from milliseconds to years, full arithmetic operators, TimeSpan interop, formatting and unit conversion.',
   },
   {
-    icon: '🎂',
+    icon: AlarmClock,
+    title: 'Vali-CountDown',
+    description:
+      'Deadline tracking and countdown utilities. Measure time until/since a reference point, report progress as a percentage, and format a human-readable breakdown.',
+  },
+  {
+    icon: Cake,
     title: 'Vali-Age',
     description:
       'Age calculation from a birthdate. Get years, exact breakdown, formatted strings, relative descriptions, birthday detection, next/previous birthday and days until birthday.',
   },
   {
-    icon: '🔄',
+    icon: Repeat,
     title: 'Vali-Schedule',
     description:
-      'Fluent builder for recurring schedules — daily, weekly, monthly, yearly. Query next/previous occurrences, enumerate occurrences in a range, and use custom predicates.',
+      'Fluent builder for recurring schedules — daily, weekly, monthly, yearly, plus a Cron engine. Query next/previous occurrences, enumerate occurrences in a range, and skip weekends/holidays.',
   },
   {
-    icon: '🌍',
+    icon: Flag,
     title: 'Vali-Holiday',
     description:
-      '35+ country holiday data with Easter-based movable holidays. Register providers, check if a date is a holiday, get next/previous holidays and detect long weekends.',
+      '38+ country holiday data with Easter-based movable holidays. Register providers, check if a date is a holiday in one or more countries, get next/previous holidays and observed dates.',
   },
   {
-    icon: '🌐',
+    icon: Globe,
     title: 'Vali-TimeZone',
     description:
       '45+ curated IANA timezone zones. Convert between zones, handle DST, compute offset differences, find zones by country, format with zone info and compare instants.',
+  },
+  {
+    icon: Building2,
+    title: 'Vali-BusinessHours',
+    description:
+      'Cross-timezone business-hours overlap, DST-correct and midnight-crossing aware. Find overlapping windows between two offices and restrict them to workdays.',
+  },
+  {
+    icon: Boxes,
+    title: 'Vali-Bucket',
+    description:
+      'Fixed-size, anchor-aligned time-series bucketing and aggregation. Group events into buckets and aggregate values — sum, average, min, max, count.',
   },
 ];
 
 const FEATURES_ES: Feature[] = [
   {
-    icon: '⏱',
+    icon: Timer,
     title: 'Vali-Time',
     description:
       'Conversiones de unidades de tiempo con precisión decimal. Convierte entre milisegundos, segundos, minutos, horas, días y más. Formatea, limita, compara y desglosa duraciones.',
   },
   {
-    icon: '📅',
+    icon: CalendarDays,
     title: 'Vali-Date',
     description:
       'Aritmética de fechas completa — diff, add, subtract, startOf, endOf, isWeekend, isLeapYear, weekOfYear, dayOfYear, progreso en año/mes y operaciones trimestrales.',
   },
   {
-    icon: '📆',
+    icon: CalendarRange,
     title: 'Vali-Range',
     description:
       'Operaciones de rango de fechas expresivas: unión, intersección, huecos, división por día/semana/mes/trimestre. Enumera días laborables, expande, contrae, desplaza y fusiona rangos.',
   },
   {
-    icon: '🗓',
+    icon: CalendarCheck2,
     title: 'Vali-Calendar',
     description:
       'Calendario laboral con soporte de proveedor de festivos conectable. Calcula días laborables entre fechas, agrega días laborables, consulta semanas y meses, y detecta límites de primer/último día.',
   },
   {
-    icon: '⏳',
+    icon: Hourglass,
     title: 'Vali-Duration',
     description:
       'Tipo de valor Duration decimal de alta precisión. Métodos de fábrica de milisegundos a años, operadores aritméticos completos, interoperabilidad con TimeSpan, formateo y conversión de unidades.',
   },
   {
-    icon: '🎂',
+    icon: AlarmClock,
+    title: 'Vali-CountDown',
+    description:
+      'Seguimiento de plazos y utilidades de cuenta regresiva. Mide el tiempo hasta/desde un punto de referencia, reporta el progreso como porcentaje y formatea un desglose legible.',
+  },
+  {
+    icon: Cake,
     title: 'Vali-Age',
     description:
       'Cálculo de edad desde una fecha de nacimiento. Obtén años, desglose exacto, cadenas formateadas, descripciones relativas, detección de cumpleaños, próximo/anterior cumpleaños y días hasta el cumpleaños.',
   },
   {
-    icon: '🔄',
+    icon: Repeat,
     title: 'Vali-Schedule',
     description:
-      'Constructor fluido para programaciones recurrentes — diaria, semanal, mensual, anual. Consulta próximas/anteriores ocurrencias, enumera ocurrencias en un rango y usa predicados personalizados.',
+      'Constructor fluido para programaciones recurrentes — diaria, semanal, mensual, anual, además de un motor Cron. Consulta próximas/anteriores ocurrencias, enumera ocurrencias en un rango y omite fines de semana/festivos.',
   },
   {
-    icon: '🌍',
+    icon: Flag,
     title: 'Vali-Holiday',
     description:
-      'Datos de festivos de 35+ países con festivos móviles basados en Pascua. Registra proveedores, verifica si una fecha es festivo, obtén próximos/anteriores festivos y detecta puentes.',
+      'Datos de festivos de 38+ países con festivos móviles basados en Pascua. Registra proveedores, verifica si una fecha es festivo en uno o varios países, obtén próximos/anteriores festivos y fechas observadas.',
   },
   {
-    icon: '🌐',
+    icon: Globe,
     title: 'Vali-TimeZone',
     description:
       '45+ zonas IANA curadas. Convierte entre zonas, gestiona el horario de verano (DST), calcula diferencias de offset, encuentra zonas por país, formatea con información de zona y compara instantes.',
+  },
+  {
+    icon: Building2,
+    title: 'Vali-BusinessHours',
+    description:
+      'Solapamiento de horario laboral entre zonas horarias, correcto con DST y cruces de medianoche. Encuentra ventanas solapadas entre dos oficinas y restríngelas a días laborables.',
+  },
+  {
+    icon: Boxes,
+    title: 'Vali-Bucket',
+    description:
+      'Agrupación y agregación de series temporales en buckets de tamaño fijo alineados a un ancla. Agrupa eventos en buckets y agrega valores — suma, promedio, mínimo, máximo, conteo.',
   },
 ];
 
@@ -173,9 +214,9 @@ const PACKAGES_ES: Package[] = [
 
 const TRANSLATIONS = {
   en: {
-    heroBadge: '35+ countries · 45+ IANA zones · .NET 8/9',
+    heroBadge: '38+ countries · 45+ IANA zones · .NET 8/9/10',
     heroTagline: 'time precision for .NET — dates, calendars & timezones',
-    heroSubtitle: 'Nine modules. One ecosystem. Precision time.',
+    heroSubtitle: 'Eleven modules. One ecosystem. Precision time.',
     heroModulesLabel: 'Available modules',
     statModules: 'modules',
     statCountries: 'countries',
@@ -185,8 +226,8 @@ const TRANSLATIONS = {
     featuresSectionTitle: 'Everything you need for precise time handling',
     featuresSectionSubtitle: 'Built for .NET developers who need accurate date, time, and timezone operations.',
     pipelineBadge: 'precision ecosystem',
-    pipelineTitle: 'Nine modules. One time ecosystem.',
-    pipelineSubtitle: 'Nine focused packages. Use one or all — they compose naturally.',
+    pipelineTitle: 'Eleven modules. One time ecosystem.',
+    pipelineSubtitle: 'Eleven focused packages. Use one or all — they compose naturally.',
     packagesSectionTitle: '12 NuGet packages. Install only what you need.',
     packagesSectionSubtitle: 'Each package is independent — add the modules your project requires, or grab Vali-Tempo for the full suite.',
     authorBuiltBy: 'Built by',
@@ -205,9 +246,9 @@ const TRANSLATIONS = {
     copyToClipboard: 'Copy to clipboard',
   },
   es: {
-    heroBadge: '35+ países · 45+ zonas IANA · .NET 8/9',
+    heroBadge: '38+ países · 45+ zonas IANA · .NET 8/9/10',
     heroTagline: 'precisión de tiempo para .NET — fechas, calendarios y zonas horarias',
-    heroSubtitle: 'Nueve módulos. Un ecosistema. Precisión temporal.',
+    heroSubtitle: 'Once módulos. Un ecosistema. Precisión temporal.',
     heroModulesLabel: 'Módulos disponibles',
     statModules: 'módulos',
     statCountries: 'países',
@@ -217,8 +258,8 @@ const TRANSLATIONS = {
     featuresSectionTitle: 'Todo lo que necesitas para el manejo preciso del tiempo',
     featuresSectionSubtitle: 'Construido para desarrolladores .NET que necesitan operaciones precisas de fecha, tiempo y zona horaria.',
     pipelineBadge: 'ecosistema de precisión',
-    pipelineTitle: 'Nueve módulos. Un ecosistema de tiempo.',
-    pipelineSubtitle: 'Nueve paquetes especializados. Úsalos individualmente o todos juntos — se combinan naturalmente.',
+    pipelineTitle: 'Once módulos. Un ecosistema de tiempo.',
+    pipelineSubtitle: 'Once paquetes especializados. Úsalos individualmente o todos juntos — se combinan naturalmente.',
     packagesSectionTitle: '12 paquetes NuGet. Instala solo lo que necesitas.',
     packagesSectionSubtitle: 'Cada paquete es independiente — agrega los módulos que tu proyecto requiere, o usa Vali-Tempo para la suite completa.',
     authorBuiltBy: 'Desarrollado por',
@@ -506,63 +547,63 @@ function LiveClockPanel(): ReactNode {
   const API_CARDS = [
     {
       module: 'Vali-TimeZone',
-      icon: '🌐',
+      icon: Globe,
       call: 'Now("America/Lima")',
       result: timeStr,
       live: true,
     },
     {
       module: 'Vali-Holiday',
-      icon: '🌍',
+      icon: Flag,
       call: 'IsHoliday(Today, "US")',
       result: now ? (now.getMonth() === 11 && now.getDate() === 25 ? t.holiday : t.workingDay) : '—',
       live: true,
     },
     {
       module: 'Vali-Time',
-      icon: '⏱',
+      icon: Timer,
       call: 'Convert(90, Min, Hours)',
       result: '"1.50 h"',
       live: false,
     },
     {
       module: 'Vali-Range',
-      icon: '📆',
+      icon: CalendarRange,
       call: 'Intersect(rangeA, rangeB)',
       result: t.overlappingDays,
       live: false,
     },
     {
       module: 'Vali-Calendar',
-      icon: '🗓',
+      icon: CalendarCheck2,
       call: 'WorkdaysIn(30d)',
       result: `~${workdayEst} ${t.workdays}`,
       live: false,
     },
     {
       module: 'Vali-Duration',
-      icon: '⌛',
+      icon: Hourglass,
       call: 'From(TimeSpan.FromHours(2))',
       result: '"2h 0m 0s"',
       live: false,
     },
     {
       module: 'Vali-Schedule',
-      icon: '🔄',
+      icon: Repeat,
       call: 'Every(1,Week).On(Mon)',
       result: `${t.nextLabel} ${nextMonday}`,
       live: true,
     },
     {
       module: 'Vali-Age',
-      icon: '🎂',
+      icon: Cake,
       call: 'Years(Jan 15, 1993)',
       result: `${now ? now.getFullYear() - 1993 : 33} ${t.yearsLabel}`,
       live: true,
     },
     {
       module: 'Vali-CountDown',
-      icon: '⏳',
+      icon: AlarmClock,
       call: 'TimeUntil(NewYear)',
       result: `${daysUntilNY}${t.daysRemaining}`,
       live: true,
@@ -631,7 +672,7 @@ function LiveClockPanel(): ReactNode {
         {API_CARDS.map((card) => (
           <div key={card.module} className={styles.apiCard}>
             <div className={styles.apiCardHeader}>
-              <span className={styles.apiCardIcon}>{card.icon}</span>
+              <card.icon className={styles.apiCardIcon} size={13} aria-hidden="true" />
               <span className={styles.apiCardModule}>{card.module}</span>
               {card.live && <span className={styles.apiCardLiveDot} />}
             </div>
@@ -739,13 +780,13 @@ function ModuleSection(): ReactNode {
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function FeatureCard({ icon, title, description, index }: Feature & { index: number }): ReactNode {
+function FeatureCard({ icon: Icon, title, description, index }: Feature & { index: number }): ReactNode {
   const num = String(index + 1).padStart(2, '0');
   return (
     <div className={styles.featureCard}>
       <span className={styles.featureNumber}>{num}</span>
       <div className={styles.featureIconWrap}>
-        <span className={styles.featureIconGlyph}>{icon}</span>
+        <Icon className={styles.featureIconGlyph} size={20} aria-hidden="true" />
       </div>
       <h3 className={styles.featureTitle}>{title}</h3>
       <p className={styles.featureDescription}>{description}</p>
@@ -827,7 +868,7 @@ function ClockRingDecoration(): ReactNode {
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
-const MODULES = ['ValiTime', 'ValiDate', 'ValiRange', 'ValiCalendar', 'ValiDuration', 'ValiAge', 'ValiSchedule', 'ValiHoliday', 'ValiTimeZone'];
+const MODULES = ['ValiTime', 'ValiDate', 'ValiRange', 'ValiCalendar', 'ValiDuration', 'ValiCountDown', 'ValiAge', 'ValiSchedule', 'ValiHoliday', 'ValiTimeZone', 'ValiBusinessHours', 'ValiBucket'];
 
 function Hero(): ReactNode {
   const [copied, setCopied] = useState(false);
@@ -875,17 +916,17 @@ function Hero(): ReactNode {
         {/* Stats row */}
         <div className={styles.heroStats}>
           <div className={styles.heroStat}>
-            <span className={styles.heroStatValue}>9</span>
+            <span className={styles.heroStatValue}>11</span>
             <span className={styles.heroStatLabel}>{t.statModules}</span>
           </div>
           <div className={styles.heroStatDivider} aria-hidden="true" />
           <div className={styles.heroStat}>
-            <span className={styles.heroStatValue}>35+</span>
+            <span className={styles.heroStatValue}>38+</span>
             <span className={styles.heroStatLabel}>{t.statCountries}</span>
           </div>
           <div className={styles.heroStatDivider} aria-hidden="true" />
           <div className={styles.heroStat}>
-            <span className={styles.heroStatValue}>.NET 8/9</span>
+            <span className={styles.heroStatValue}>.NET 8/9/10</span>
             <span className={styles.heroStatLabel}>{t.statSupported}</span>
           </div>
         </div>
